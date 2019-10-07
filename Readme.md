@@ -1,7 +1,7 @@
 # Личный проект «TaskForce»
 
 * Студент: [Марина](https://up.htmlacademy.ru/yii/1/user/792223).
-* Наставник: `Неизвестно`.
+* Наставник: [ИльяКондрашов](https://htmlacademy.ru/profile/id644427).
 
 ---
 
