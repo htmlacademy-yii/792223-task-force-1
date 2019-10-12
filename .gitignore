@@ -7,4 +7,4 @@
 *.sublime*
 Thumbs.db
 vendor
-test.php
+sandbox.php
