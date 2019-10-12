@@ -2,46 +2,44 @@
 
 namespace Htmlacademy\Model;
 
-/*
-должны быть методы, которые возвращают
-список из всех доступных действий и статусов;
-*/
+use Htmlacademy\TaskActions;
+use Htmlacademy\TaskStatuses;
+use Htmlacademy\UserRoles;
 
-class Task
+class Task implements TaskActions, TaskStatuses, UserRoles
 {
-    public const ROLE_OWNER = 'заказчик';
-    public const ROLE_AGENT = 'исполнитель';
-
-    public const ACTION_APPLY = 'откликнуться';
-    public const ACTION_ACCEPT = 'принять';
-    public const ACTION_CANCEL = 'отменить/отказаться';
-    public const ACTION_COMPLETE = 'завершить';
-
-    public const STATUS_NEW = 'новое';
-    public const STATUS_CANCELLED = 'отменено/провалено';
-    public const STATUS_EXPIRED_FAILED = 'просрочено';
-    public const STATUS_ACTIVE = 'на исполнении';
-    public const STATUS_COMPLETED = 'завершено';
-
     //private $id;
     private $status;
     private $owner_id;
     private $agent_id;
     private $created_at;
-    private $expires_at;
+    private $expired_at;
     private $updated_at;
+    //private $name;
+    //private $description;
+    //private $budget;
+    //private $category_id;
+    //private $location_id;
+    //private $chat_id;
+    //private $review_id;
+    //private $has_attachments;
 
-    public function __construct($user_id, $expires_at)
+    public function __construct($user_id, $expired_at)
     {
         $this->status = self::STATUS_NEW;
         $this->owner_id = $user_id;
         $this->agent_id = null;
         $this->created_at = date('Y-m-d H:i:s');
-        $this->expires_at = $expires_at;
+        $this->expired_at = $expired_at;
         $this->updated_at = $this->created_at;
     }
 
-    public function getRoleForUser($userId)
+    /**
+     * @param int $userId
+     *
+     * @return string|null
+     */
+    public function getRoleForUser(int $userId)
     {
         if ($userId === $this->owner_id) {
             return self::ROLE_OWNER;
@@ -51,16 +49,20 @@ class Task
         }
 
         return null;
+        //throw Exception
+        //though role is optional
     }
 
-    public function getActionsForUser($userId)
+    /**
+     * @param int $userId
+     *
+     * @return array
+     */
+    public function getActionsForUser(int $userId): array
     {
-        //список доступных действий, который зависит от:
-        //текущего статуса задания.
-        //id пользователя (то есть роли).
-
-        if (date('Y-m-d H:i:s') > $this->expires_at) {
-            return null;
+        if (date('Y-m-d H:i:s') > $this->expired_at) {
+            return [];
+            //throw Exception
         }
 
         $userRole = $this->getRoleForUser($userId);
@@ -68,7 +70,7 @@ class Task
         switch ($userRole) {
             case self::ROLE_OWNER:
                 if ($this->status === self::STATUS_NEW) {
-                    return [self::ACTION_CANCEL, self::ACTION_ACCEPT];
+                    return [self::ACTION_CANCEL, self::ACTION_ASSIGN];
                 }
                 if ($this->status === self::STATUS_ACTIVE) {
                     return [self::ACTION_COMPLETE];
@@ -77,7 +79,7 @@ class Task
 
             case self::ROLE_AGENT:
                 if ($this->status === self::STATUS_ACTIVE) {
-                    return [self::ACTION_CANCEL];
+                    return [self::ACTION_DECLINE];
                 }
                 break;
 
@@ -88,17 +90,18 @@ class Task
                 break;
         }
 
-        return null;
+        return [];
+        //throw Exception
     }
 
-    public function getStatusForAction($actionName)
+    /**
+     * @param string $actionName
+     *
+     * @return string
+     */
+    public function getStatusForAction(string $actionName): string
     {
-        //метод для возврата имени статуса,
-        //в который перейдёт задание после конкретного действия.
-
-        $statusName = $this->status;
-
-        if ($actionName === self::ACTION_ACCEPT) {
+        if ($actionName === self::ACTION_ASSIGN) {
             return self::STATUS_ACTIVE;
         }
 
@@ -106,11 +109,22 @@ class Task
             return self::STATUS_CANCELLED;
         }
 
+        if ($actionName === self::ACTION_DECLINE) {
+            return self::STATUS_FAILED;
+        }
+
         if ($actionName === self::ACTION_COMPLETE) {
             return self::STATUS_COMPLETED;
         }
 
-        return $statusName;
+        return $this->status;
     }
+
+    /*
+     * это не совсем поняла:
+     * "должны быть методы, которые возвращают
+     * список из всех доступных действий и статусов;"
+     * просто вернуть массив всех действий и всех статусов?
+    */
 
 }
