@@ -30,17 +30,17 @@ class Task implements TaskActions, TaskStatuses, UserRoles
      * Task constructor.
      *
      * @param int $user_id
-     * @param string $expired_at
+     * @param DateTime $expired_at
      *
      * @throws \Exception
      */
-    public function __construct(int $user_id, string $expired_at)
+    public function __construct(int $user_id, DateTime $expired_at)
     {
         $this->status = self::STATUS_NEW;
         $this->owner_id = $user_id;
         $this->agent_id = null;
         $this->created_at = new DateTime();
-        $this->expired_at = new DateTime($expired_at);
+        $this->expired_at = $expired_at;
         $this->updated_at = $this->created_at;
     }
 
@@ -127,6 +127,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
      * @param string $actionName
      *
      * @return string
+     * @throws \Exception
      */
     public function getNextStatusForAction(string $actionName): string
     {
@@ -146,7 +147,15 @@ class Task implements TaskActions, TaskStatuses, UserRoles
             return self::STATUS_COMPLETED;
         }
 
-        return $this->status;
+        if ($actionName === self::ACTION_MESSAGE) {
+            return $this->status;
+        }
+
+        if ($actionName === self::ACTION_APPLY) {
+            return $this->status;
+        }
+
+        throw new Exception(self::ACTION_UNKNOWN);
     }
 
     /**

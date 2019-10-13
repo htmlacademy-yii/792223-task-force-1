@@ -15,4 +15,5 @@ interface TaskActions
     public const ACTION_UNAUTHORIZED = 'Action unauthorized!';
     public const ACTION_ASSIGNED = 'Task is already assigned to agent!';
     public const ACTION_NO_AVAILABLE = 'No available actions!';
+    public const ACTION_UNKNOWN = 'Trying to perform unknown action!';
 }

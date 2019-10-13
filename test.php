@@ -4,13 +4,14 @@ namespace Htmlacademy;
 
 require_once 'vendor/autoload.php';
 
+use DateTime;
 use Htmlacademy\Models\Task;
 
 $ownerId = 1;
 $agentId = 2;
 $passerbyId = 42;
-$tomorrow = 'tomorrow';
-$yesterday = 'yesterday';
+$tomorrow = new DateTime('tomorrow');
+$yesterday = new DateTime('yesterday');
 
 //assert for getNextStatusForAction
 $task = new Task($ownerId, $tomorrow);
