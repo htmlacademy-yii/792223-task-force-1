@@ -7,13 +7,12 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`locations` (
   `city_name` VARCHAR(45) NOT NULL,
   `district` VARCHAR(45) NULL,
   `street` VARCHAR(45) NULL,
-  `zip-code` VARCHAR(45) NULL,
+  `zip_code` VARCHAR(45) NULL,
   `latitude` VARCHAR(45) NULL,
   `longitude` VARCHAR(45) NULL,
   `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `city_name_UNIQUE` (`city_name` ASC))
+  `updated_at` DATETIME NOT NULL,
+  PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`task_categories` (
@@ -21,9 +20,9 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_categories` (
   `name` VARCHAR(45) NOT NULL,
   `slug` VARCHAR(45) NOT NULL,
   `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL,
+  `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `slug_UNIQUE` (`slug` ASC))
+  UNIQUE INDEX `uidx_category_slug` (`slug` ASC))
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`task_statuses` (
@@ -31,9 +30,9 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_statuses` (
   `name` VARCHAR(45) NOT NULL,
   `slug` VARCHAR(45) NOT NULL,
   `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL,
+  `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `slug_UNIQUE` (`slug` ASC))
+  UNIQUE INDEX `uidx_status_slug` (`slug` ASC))
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`tasks` (
@@ -48,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`tasks` (
   `category_id` INT NOT NULL,
   `location_id` INT NULL,
   `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL,
+  `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_tasks_locations1_idx` (`location_id` ASC),
   INDEX `fk_tasks_categories1_idx` (`category_id` ASC),
@@ -82,13 +81,14 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`users` (
   `skype` VARCHAR(45) NULL,
   `other_messenger` VARCHAR(45) NULL,
   `location_id` INT NOT NULL,
-  `profile_views` INT NULL DEFAULT 0,
-  `failed_tasks` INT NULL DEFAULT 0,
-  `last_active_at` DATETIME NULL,
+  `profile_views` INT NOT NULL DEFAULT 0,
+  `failed_tasks` INT NOT NULL DEFAULT 0,
+  `last_active_at` DATETIME NOT NULL,
   `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL,
+  `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_users_locations1_idx` (`location_id` ASC),
+  UNIQUE INDEX `uidx_user_email` (`email` ASC)
   CONSTRAINT `fk_users_locations1`
     FOREIGN KEY (`location_id`)
     REFERENCES `taskforce`.`locations` (`id`)
@@ -101,11 +101,12 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_applications` (
   `user_id` INT NOT NULL,
   `price` INT UNSIGNED NOT NULL,
   `comment` VARCHAR(45) NOT NULL,
-  `is_rejected` TINYINT NULL,
+  `is_rejected` TINYINT NOT NULL,
   `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL,
+  `updated_at` DATETIME NOT NULL,
   INDEX `fk_task_applications_users1_idx` (`user_id` ASC),
   INDEX `fk_task_applications_tasks1_idx` (`task_id` ASC),
+  UNIQUE INDEX `uidx_application` (`task_id` ASC, `user_id` ASC),
   PRIMARY KEY (`user_id`, `task_id`),
   CONSTRAINT `fk_task_applications_users1`
     FOREIGN KEY (`user_id`)
@@ -126,9 +127,10 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_reviews` (
   `rating` TINYINT NULL,
   `comment` VARCHAR(45) NULL,
   `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL,
+  `updated_at` DATETIME NOT NULL,
   INDEX `fk_task_reviews_users1_idx` (`user_id` ASC),
   INDEX `fk_task_reviews_tasks1_idx` (`task_id` ASC),
+  UNIQUE INDEX `uidx_review` (`task_id` ASC, `user_id` ASC),
   PRIMARY KEY (`user_id`, `task_id`),
   CONSTRAINT `fk_task_reviews_users1`
     FOREIGN KEY (`user_id`)
@@ -150,14 +152,15 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`user_settings` (
   `show_contacts` TINYINT NOT NULL,
   `show_profile` TINYINT NOT NULL,
   `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL,
+  `updated_at` DATETIME NOT NULL,
   INDEX `fk_user_settings_users1_idx` (`user_id` ASC),
+  UNIQUE INDEX `uidx_user_settings` (`user_id` ASC),
   PRIMARY KEY (`user_id`),
   CONSTRAINT `fk_user_settings_users1`
     FOREIGN KEY (`user_id`)
     REFERENCES `taskforce`.`users` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`notifications` (
@@ -167,7 +170,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`notifications` (
   `message` VARCHAR(45) NOT NULL,
   `read_at` DATETIME NULL,
   `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL,
+  `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_notifications_users1_idx` (`user_id` ASC),
   CONSTRAINT `fk_notifications_users1`
@@ -180,13 +183,28 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `taskforce`.`chats` (
   `id` INT NOT NULL,
   `task_id` INT NOT NULL,
+  `task_owner_id` INT NOT NULL,
+  `task_agent_id` INT NOT NULL,
   `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL,
+  `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_chats_tasks1_idx` (`task_id` ASC),
+  INDEX `fk_chats_users1_idx` (`task_owner_id` ASC),
+  INDEX `fk_chats_users2_idx` (`task_agent_id` ASC),
+  UNIQUE INDEX `uidx_chat_task_authors` (`task_id` ASC, `task_owner_id` ASC, `task_agent_id` ASC),
   CONSTRAINT `fk_chats_tasks1`
     FOREIGN KEY (`task_id`)
     REFERENCES `taskforce`.`tasks` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_chats_users1`
+    FOREIGN KEY (`task_owner_id`)
+    REFERENCES `taskforce`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_chats_users2`
+    FOREIGN KEY (`task_agent_id`)
+    REFERENCES `taskforce`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -197,7 +215,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`chat_messages` (
   `chat_id` INT NOT NULL,
   `author_id` INT NOT NULL,
   `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL,
+  `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_chat_messages_chats1_idx` (`chat_id` ASC),
   INDEX `fk_chat_messages_users1_idx` (`author_id` ASC),
@@ -205,7 +223,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`chat_messages` (
     FOREIGN KEY (`chat_id`)
     REFERENCES `taskforce`.`chats` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION,
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_chat_messages_users1`
     FOREIGN KEY (`author_id`)
     REFERENCES `taskforce`.`users` (`id`)
@@ -213,40 +231,84 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`chat_messages` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `taskforce`.`favourites` (
-  `id` INT NOT NULL,
+CREATE TABLE IF NOT EXISTS `taskforce`.`user_qualifications` (
   `user_id` INT NOT NULL,
-  `fav_type` VARCHAR(45) NOT NULL,
-  `fav_id` INT NOT NULL,
+  `category_id` INT NOT NULL,
   `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_favourites_users1_idx` (`user_id` ASC),
-  CONSTRAINT `fk_favourites_users1`
+  `updated_at` DATETIME NOT NULL,
+  INDEX `fk_qualifications_users1_idx` (`user_id` ASC),
+  INDEX `fk_qualifications_task_categories1_idx` (`category_id` ASC),
+  UNIQUE INDEX `uidx_qualification` (`user_id` ASC, `category_id` ASC),
+  PRIMARY KEY (`user_id`, `category_id`),
+  CONSTRAINT `fk_qualifications_users1`
     FOREIGN KEY (`user_id`)
     REFERENCES `taskforce`.`users` (`id`)
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_qualifications_task_categories1`
+    FOREIGN KEY (`category_id`)
+    REFERENCES `taskforce`.`task_categories` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `taskforce`.`attachments` (
+CREATE TABLE IF NOT EXISTS `taskforce`.`user_favorites` (
+  `user_id` INT NOT NULL,
+  `favourite_id` INT NOT NULL,
+  `created_at` DATETIME NOT NULL,
+  `updated_at` DATETIME NOT NULL,
+  INDEX `fk_user_favorites_users1_idx` (`user_id` ASC),
+  INDEX `fk_user_favorites_users2_idx` (`favourite_id` ASC),
+  UNIQUE INDEX `uidx_favorite` (`user_id` ASC, `favourite_id` ASC),
+  PRIMARY KEY (`user_id`, `favourite_id`),
+  CONSTRAINT `fk_user_favorites_users1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `taskforce`.`users` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_favorites_users2`
+    FOREIGN KEY (`favourite_id`)
+    REFERENCES `taskforce`.`users` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `taskforce`.`task_attachments` (
   `id` INT NOT NULL,
-  `author_id` INT NOT NULL,
-  `model_id` INT NOT NULL,
-  `model_type` VARCHAR(45) NULL,
+  `tasks_id` INT NOT NULL,
   `name` VARCHAR(45) NOT NULL,
   `extension` VARCHAR(45) NOT NULL,
   `mime` VARCHAR(45) NOT NULL,
   `size` INT NOT NULL,
   `path` VARCHAR(45) NOT NULL,
   `hash` VARCHAR(45) NOT NULL,
-  `created_at` VARCHAR(45) NOT NULL,
-  `updated_at` VARCHAR(45) NULL,
+  `created_at` DATETIME NOT NULL,
+  `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_attachments_users1_idx` (`author_id` ASC),
-  CONSTRAINT `fk_attachments_users1`
-    FOREIGN KEY (`author_id`)
-    REFERENCES `taskforce`.`users` (`id`)
+  INDEX `fk_task_attachments_tasks1_idx` (`tasks_id` ASC),
+  CONSTRAINT `fk_task_attachments_tasks1`
+    FOREIGN KEY (`tasks_id`)
+    REFERENCES `taskforce`.`tasks` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `taskforce`.`user_attachments` (
+  `id` INT NOT NULL,
+  `author_id` INT NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
+  `extension` VARCHAR(45) NOT NULL,
+  `mime` VARCHAR(45) NOT NULL,
+  `size` INT NOT NULL,
+  `path` VARCHAR(45) NOT NULL,
+  `hash` VARCHAR(45) NOT NULL,
+  `created_at` DATETIME NOT NULL,
+  `updated_at` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_attachments_users1_idx` (`author_id` ASC),
+  CONSTRAINT `fk_attachments_users10`
+    FOREIGN KEY (`author_id`)
+    REFERENCES `taskforce`.`users` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
