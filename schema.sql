@@ -25,20 +25,10 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_categories` (
   UNIQUE INDEX `uidx_category_slug` (`slug` ASC))
 ENGINE = InnoDB;
 
-CREATE TABLE IF NOT EXISTS `taskforce`.`task_statuses` (
-  `id` INT NOT NULL,
-  `name` VARCHAR(45) NOT NULL,
-  `slug` VARCHAR(45) NOT NULL,
-  `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `uidx_status_slug` (`slug` ASC))
-ENGINE = InnoDB;
-
 CREATE TABLE IF NOT EXISTS `taskforce`.`tasks` (
   `id` INT NOT NULL,
   `owner_id` INT NOT NULL,
-  `status_id` INT NOT NULL,
+  `status` ENUM ('new','cancelled','failed','in progress','completed','expired') NOT NULL,
   `agent_id` INT NULL,
   `name` VARCHAR(45) NOT NULL,
   `description` TEXT(1000) NOT NULL,
@@ -51,7 +41,6 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`tasks` (
   PRIMARY KEY (`id`),
   INDEX `fk_tasks_locations1_idx` (`location_id` ASC),
   INDEX `fk_tasks_categories1_idx` (`category_id` ASC),
-  INDEX `fk_tasks_task_statuses1_idx` (`status_id` ASC),
   CONSTRAINT `fk_tasks_locations1`
     FOREIGN KEY (`location_id`)
     REFERENCES `taskforce`.`locations` (`id`)
@@ -60,11 +49,6 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`tasks` (
   CONSTRAINT `fk_tasks_categories1`
     FOREIGN KEY (`category_id`)
     REFERENCES `taskforce`.`task_categories` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_tasks_task_statuses1`
-    FOREIGN KEY (`status_id`)
-    REFERENCES `taskforce`.`task_statuses` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -88,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`users` (
   `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_users_locations1_idx` (`location_id` ASC),
-  UNIQUE INDEX `uidx_user_email` (`email` ASC)
+  UNIQUE INDEX `uidx_user_email` (`email` ASC),
   CONSTRAINT `fk_users_locations1`
     FOREIGN KEY (`location_id`)
     REFERENCES `taskforce`.`locations` (`id`)
