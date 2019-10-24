@@ -4,6 +4,12 @@ namespace Htmlacademy\Models;
 
 use DateTime;
 use Exception;
+use Htmlacademy\Actions\Apply;
+use Htmlacademy\Actions\Assign;
+use Htmlacademy\Actions\Cancel;
+use Htmlacademy\Actions\Complete;
+use Htmlacademy\Actions\Decline;
+use Htmlacademy\Actions\Message;
 use Htmlacademy\TaskActions;
 use Htmlacademy\TaskStatuses;
 use Htmlacademy\UserRoles;
@@ -99,22 +105,22 @@ class Task implements TaskActions, TaskStatuses, UserRoles
         switch ($userRole) {
             case self::ROLE_OWNER:
                 if ($this->status === self::STATUS_NEW) {
-                    return [self::ACTION_CANCEL, self::ACTION_ASSIGN];
+                    return [Cancel::class, Assign::class];
                 }
                 if ($this->status === self::STATUS_ACTIVE) {
-                    return [self::ACTION_COMPLETE];
+                    return [Complete::class];
                 }
                 break;
 
             case self::ROLE_AGENT:
                 if ($this->status === self::STATUS_ACTIVE) {
-                    return [self::ACTION_DECLINE];
+                    return [Decline::class];
                 }
                 break;
 
             case null:
                 if ($this->status === self::STATUS_NEW) {
-                    return [self::ACTION_APPLY];
+                    return [Apply::class];
                 }
                 break;
         }
@@ -131,27 +137,27 @@ class Task implements TaskActions, TaskStatuses, UserRoles
      */
     public function getNextStatusForAction(string $actionName): string
     {
-        if ($actionName === self::ACTION_ASSIGN) {
+        if ($actionName === Assign::class) {
             return self::STATUS_ACTIVE;
         }
 
-        if ($actionName === self::ACTION_CANCEL) {
+        if ($actionName === Cancel::class) {
             return self::STATUS_CANCELLED;
         }
 
-        if ($actionName === self::ACTION_DECLINE) {
+        if ($actionName === Decline::class) {
             return self::STATUS_FAILED;
         }
 
-        if ($actionName === self::ACTION_COMPLETE) {
+        if ($actionName === Complete::class) {
             return self::STATUS_COMPLETED;
         }
 
-        if ($actionName === self::ACTION_MESSAGE) {
+        if ($actionName === Message::class) {
             return $this->status;
         }
 
-        if ($actionName === self::ACTION_APPLY) {
+        if ($actionName === Apply::class) {
             return $this->status;
         }
 
@@ -173,7 +179,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
             throw new Exception(self::ACTION_UNAUTHORIZED);
         }
 
-        if ($actionName !== self::ACTION_ASSIGN || $this->status !== self::STATUS_NEW) {
+        if ($actionName !== Assign::class || $this->status !== self::STATUS_NEW) {
             throw new Exception(self::ACTION_NOT_ALLOWED);
         }
 
@@ -200,7 +206,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
             throw new Exception(self::ACTION_UNAUTHORIZED);
         }
 
-        if ($actionName !== self::ACTION_CANCEL || $this->status !== self::STATUS_NEW) {
+        if ($actionName !== Cancel::class || $this->status !== self::STATUS_NEW) {
             throw new Exception(self::ACTION_NOT_ALLOWED);
         }
 
@@ -221,7 +227,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
             throw new Exception(self::ACTION_UNAUTHORIZED);
         }
 
-        if ($actionName !== self::ACTION_COMPLETE || $this->status !== self::STATUS_ACTIVE) {
+        if ($actionName !== Complete::class || $this->status !== self::STATUS_ACTIVE) {
             throw new Exception(self::ACTION_NOT_ALLOWED);
         }
 
@@ -242,7 +248,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
             throw new Exception(self::ACTION_UNAUTHORIZED);
         }
 
-        if ($actionName !== self::ACTION_DECLINE || $this->status !== self::STATUS_ACTIVE) {
+        if ($actionName !== Decline::class || $this->status !== self::STATUS_ACTIVE) {
             throw new Exception(self::ACTION_NOT_ALLOWED);
         }
 
