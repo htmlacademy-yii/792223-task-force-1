@@ -4,6 +4,12 @@ namespace Htmlacademy\Models;
 
 use DateTime;
 use Exception;
+use Htmlacademy\Actions\Apply;
+use Htmlacademy\Actions\Assign;
+use Htmlacademy\Actions\Cancel;
+use Htmlacademy\Actions\Complete;
+use Htmlacademy\Actions\Decline;
+use Htmlacademy\Actions\Message;
 use Htmlacademy\TaskActions;
 use Htmlacademy\TaskStatuses;
 use Htmlacademy\UserRoles;
@@ -99,22 +105,22 @@ class Task implements TaskActions, TaskStatuses, UserRoles
         switch ($userRole) {
             case self::ROLE_OWNER:
                 if ($this->status === self::STATUS_NEW) {
-                    return [self::ACTION_CANCEL, self::ACTION_ASSIGN];
+                    return [Cancel::getName(), Assign::getName()];
                 }
                 if ($this->status === self::STATUS_ACTIVE) {
-                    return [self::ACTION_COMPLETE];
+                    return [Complete::getName()];
                 }
                 break;
 
             case self::ROLE_AGENT:
                 if ($this->status === self::STATUS_ACTIVE) {
-                    return [self::ACTION_DECLINE];
+                    return [Decline::getName()];
                 }
                 break;
 
             case null:
                 if ($this->status === self::STATUS_NEW) {
-                    return [self::ACTION_APPLY];
+                    return [Apply::getName()];
                 }
                 break;
         }
@@ -131,27 +137,27 @@ class Task implements TaskActions, TaskStatuses, UserRoles
      */
     public function getNextStatusForAction(string $actionName): string
     {
-        if ($actionName === self::ACTION_ASSIGN) {
+        if ($actionName === Assign::getName()) {
             return self::STATUS_ACTIVE;
         }
 
-        if ($actionName === self::ACTION_CANCEL) {
+        if ($actionName === Cancel::getName()) {
             return self::STATUS_CANCELLED;
         }
 
-        if ($actionName === self::ACTION_DECLINE) {
+        if ($actionName === Decline::getName()) {
             return self::STATUS_FAILED;
         }
 
-        if ($actionName === self::ACTION_COMPLETE) {
+        if ($actionName === Complete::getName()) {
             return self::STATUS_COMPLETED;
         }
 
-        if ($actionName === self::ACTION_MESSAGE) {
+        if ($actionName === Message::getName()) {
             return $this->status;
         }
 
-        if ($actionName === self::ACTION_APPLY) {
+        if ($actionName === Apply::getName()) {
             return $this->status;
         }
 
@@ -173,7 +179,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
             throw new Exception(self::ACTION_UNAUTHORIZED);
         }
 
-        if ($actionName !== self::ACTION_ASSIGN || $this->status !== self::STATUS_NEW) {
+        if ($actionName !== Assign::getName() || $this->status !== self::STATUS_NEW) {
             throw new Exception(self::ACTION_NOT_ALLOWED);
         }
 
@@ -200,7 +206,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
             throw new Exception(self::ACTION_UNAUTHORIZED);
         }
 
-        if ($actionName !== self::ACTION_CANCEL || $this->status !== self::STATUS_NEW) {
+        if ($actionName !== Cancel::getName() || $this->status !== self::STATUS_NEW) {
             throw new Exception(self::ACTION_NOT_ALLOWED);
         }
 
@@ -221,7 +227,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
             throw new Exception(self::ACTION_UNAUTHORIZED);
         }
 
-        if ($actionName !== self::ACTION_COMPLETE || $this->status !== self::STATUS_ACTIVE) {
+        if ($actionName !== Complete::getName() || $this->status !== self::STATUS_ACTIVE) {
             throw new Exception(self::ACTION_NOT_ALLOWED);
         }
 
@@ -242,7 +248,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
             throw new Exception(self::ACTION_UNAUTHORIZED);
         }
 
-        if ($actionName !== self::ACTION_DECLINE || $this->status !== self::STATUS_ACTIVE) {
+        if ($actionName !== Decline::getName() || $this->status !== self::STATUS_ACTIVE) {
             throw new Exception(self::ACTION_NOT_ALLOWED);
         }
 
@@ -257,6 +263,74 @@ class Task implements TaskActions, TaskStatuses, UserRoles
         if ($this->status === self::STATUS_NEW && new DateTime() > $this->expired_at) {
             $this->status = self::STATUS_EXPIRED;
         }
+    }
+
+    /**
+     * Get list of all actions
+     *
+     * @return array
+     */
+    private function getActionsList()
+    {
+        return [
+            Apply::getName(),
+            Assign::getName(),
+            Cancel::getName(),
+            Complete::getName(),
+            Decline::getName(),
+            Message::getName(),
+        ];
+    }
+
+    /**
+     * Get list of all statuses
+     *
+     * @return array
+     */
+    private function getStatusesList()
+    {
+        return [
+            self::STATUS_NEW,
+            self::STATUS_CANCELLED,
+            self::STATUS_ACTIVE,
+            self::STATUS_FAILED,
+            self::STATUS_COMPLETED,
+            self::STATUS_EXPIRED,
+        ];
+    }
+
+    /**
+     * @param $userId
+     *
+     * @return array
+     * @throws \Exception
+     */
+    public function availableActions($userId)
+    {
+        $actions = $this->getActionsList();
+        $availableActions = [];
+
+        foreach($actions as $action)
+        {
+            $action = ucfirst($action);
+            $actionClass = 'Htmlacademy\Actions\\' . $action;
+
+            if(!class_exists($actionClass, true)) {
+                $message = "Class {$actionClass} does not exist";
+                throw new Exception($message);
+            }
+
+            if(!method_exists($actionClass, 'verifyPermission')) {
+                $message = 'Method verifyPermission does not exist in class ' . $actionClass;
+                throw new Exception($message);
+            }
+
+            if ($actionClass::verifyPermission($this, $userId)) {
+                array_push($availableActions, $action);
+            }
+        }
+
+        return $availableActions;
     }
 
 }
