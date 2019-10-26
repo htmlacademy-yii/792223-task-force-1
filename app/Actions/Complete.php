@@ -2,20 +2,32 @@
 
 namespace Htmlacademy\Actions;
 
+use Htmlacademy\Models\Task;
+use Htmlacademy\TaskStatuses;
+use Htmlacademy\UserRoles;
+
 class Complete extends AbstractAction
 {
-    public static function getName(): string
+    public static function getSlug(): string
     {
         return 'завершить';
     }
 
-    public static function getSlug(): string
+    public static function getName(): string
     {
         return 'complete';
     }
 
-    public static function isAgent(int $userId, int $agentId): bool
+    public static function verifyPermission(Task $task, int $userId): bool
     {
-        return $userId === $agentId;
+        $userRole = $task->getRoleForUser($userId);
+        $taskStatus = $task->getStatus();
+
+        if ($userRole !== UserRoles::ROLE_OWNER ||
+            $taskStatus !== TaskStatuses::STATUS_ACTIVE) {
+            return false;
+        }
+
+        return true;
     }
 }

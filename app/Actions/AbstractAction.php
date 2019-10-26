@@ -2,6 +2,8 @@
 
 namespace Htmlacademy\Actions;
 
+use Htmlacademy\Models\Task;
+
 abstract class AbstractAction
 {
     /**
@@ -19,10 +21,10 @@ abstract class AbstractAction
     abstract public static function getSlug(): string;
 
     /**
-     * @param $userId
-     * @param $agentId
+     * @param \Htmlacademy\Models\Task $task
+     * @param int $userId
      *
      * @return bool
      */
-    abstract public static function isAgent(int $userId, int $agentId): bool;
+    abstract public static function verifyPermission(Task $task, int $userId): bool;
 }

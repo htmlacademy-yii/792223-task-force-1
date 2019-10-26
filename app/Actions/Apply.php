@@ -2,20 +2,32 @@
 
 namespace Htmlacademy\Actions;
 
+use Htmlacademy\Models\Task;
+use Htmlacademy\TaskStatuses;
+
 class Apply extends AbstractAction
 {
-    public static function getName(): string
+    public static function getSlug(): string
     {
         return 'откликнуться';
     }
 
-    public static function getSlug(): string
+    public static function getName(): string
     {
         return 'apply';
     }
 
-    public static function isAgent(int $userId, int $agentId): bool
+    public static function verifyPermission(Task $task, int $userId): bool
     {
-        return $userId === $agentId;
+        $userRole = $task->getRoleForUser($userId);
+        $taskStatus = $task->getStatus();
+
+        if ($userRole === null &&
+            $taskStatus === TaskStatuses::STATUS_NEW) {
+            return true;
+        }
+
+        return false;
     }
 }
+
