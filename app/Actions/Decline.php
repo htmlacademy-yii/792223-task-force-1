@@ -13,9 +13,14 @@ class Decline extends AbstractAction
         return 'отказаться';
     }
 
-    public static function getName(): string
+    public static function getName($shortName = false): string
     {
-        return 'decline';
+        if ($shortName) {
+            $path = explode('\\', Decline::class);
+            return array_pop($path);
+        }
+
+        return Decline::class;
     }
 
     public static function verifyPermission(Task $task, int $userId): bool

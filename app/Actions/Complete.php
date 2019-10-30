@@ -13,9 +13,14 @@ class Complete extends AbstractAction
         return 'завершить';
     }
 
-    public static function getName(): string
+    public static function getName($shortName = false): string
     {
-        return 'complete';
+        if ($shortName) {
+            $path = explode('\\', Complete::class);
+            return array_pop($path);
+        }
+
+        return Complete::class;
     }
 
     public static function verifyPermission(Task $task, int $userId): bool
