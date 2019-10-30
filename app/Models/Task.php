@@ -4,12 +4,14 @@ namespace Htmlacademy\Models;
 
 use DateTime;
 use Exception;
+use Htmlacademy\Actions\AbstractAction;
 use Htmlacademy\Actions\Apply;
 use Htmlacademy\Actions\Assign;
 use Htmlacademy\Actions\Cancel;
 use Htmlacademy\Actions\Complete;
 use Htmlacademy\Actions\Decline;
 use Htmlacademy\Actions\Message;
+use Htmlacademy\Exceptions\UnauthorizedException;
 use Htmlacademy\TaskActions;
 use Htmlacademy\TaskStatuses;
 use Htmlacademy\UserRoles;
@@ -176,7 +178,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
         $userRole = $this->getRoleForUser($userId);
 
         if ($userRole !== self::ROLE_OWNER) {
-            throw new Exception(self::ACTION_UNAUTHORIZED);
+            throw new UnauthorizedException();
         }
 
         if ($actionName !== Assign::getName() || $this->status !== self::STATUS_NEW) {
@@ -310,22 +312,13 @@ class Task implements TaskActions, TaskStatuses, UserRoles
         $actions = $this->getActionsList();
         $availableActions = [];
 
-        foreach($actions as $action)
-        {
-            $action = ucfirst($action);
-            $actionClass = 'Htmlacademy\Actions\\' . $action;
-
-            if(!class_exists($actionClass, true)) {
-                $message = "Class {$actionClass} does not exist";
+        foreach ($actions as $action) {
+            if (get_parent_class($action) !== AbstractAction::class) {
+                $message = "Class {$action} is not a child of AbstractAction";
                 throw new Exception($message);
             }
 
-            if(!method_exists($actionClass, 'verifyPermission')) {
-                $message = 'Method verifyPermission does not exist in class ' . $actionClass;
-                throw new Exception($message);
-            }
-
-            if ($actionClass::verifyPermission($this, $userId)) {
+            if ($action::verifyPermission($this, $userId)) {
                 array_push($availableActions, $action);
             }
         }

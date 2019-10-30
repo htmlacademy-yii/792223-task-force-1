@@ -1,8 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Htmlacademy;
 
 require_once 'vendor/autoload.php';
+
+ini_set('display_errors', 'On');
+error_reporting(E_ALL);
 
 use DateTime;
 use Htmlacademy\Models\Task;
