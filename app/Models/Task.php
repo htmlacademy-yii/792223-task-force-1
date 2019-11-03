@@ -3,7 +3,6 @@
 namespace Htmlacademy\Models;
 
 use DateTime;
-use Exception;
 use Htmlacademy\Actions\AbstractAction;
 use Htmlacademy\Actions\Apply;
 use Htmlacademy\Actions\Assign;
@@ -11,12 +10,14 @@ use Htmlacademy\Actions\Cancel;
 use Htmlacademy\Actions\Complete;
 use Htmlacademy\Actions\Decline;
 use Htmlacademy\Actions\Message;
-use Htmlacademy\Exceptions\UnauthorizedException;
-use Htmlacademy\TaskActions;
+use Htmlacademy\Exceptions\ActionException;
+use Htmlacademy\Exceptions\RoleException;
+use Htmlacademy\Exceptions\StatusException;
+use Htmlacademy\Exceptions\TaskForceException;
 use Htmlacademy\TaskStatuses;
 use Htmlacademy\UserRoles;
 
-class Task implements TaskActions, TaskStatuses, UserRoles
+class Task implements TaskStatuses, UserRoles
 {
     //private $id;
     private $status;
@@ -60,7 +61,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
     private function setAgentId(int $userId)
     {
         if ($this->owner_id === $userId) {
-            throw new Exception(self::ROLE_FORBIDDEN);
+            throw RoleException::make($userId, UserRoles::ROLE_AGENT);
         }
         $this->agent_id = $userId;
     }
@@ -99,7 +100,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
     {
         if (new DateTime() > $this->expired_at) {
             return [];
-            //throw new Exception(self::STATUS_EXCEPTION_EXPIRED);
+            //throw ActionException::make();
         }
 
         $userRole = $this->getRoleForUser($userId);
@@ -128,66 +129,63 @@ class Task implements TaskActions, TaskStatuses, UserRoles
         }
 
         return [];
-        //throw new Exception(self::ACTION_NO_AVAILABLE);
+        //throw ActionException::make();
     }
 
     /**
-     * @param string $actionName
+     * @param AbstractAction $action
      *
      * @return string
      * @throws \Exception
      */
-    public function getNextStatusForAction(string $actionName): string
+    public function getNextStatusForAction(AbstractAction $action): string
     {
-        if ($actionName === Assign::getName()) {
+        if ($action::getName() === Assign::getName()) {
             return self::STATUS_ACTIVE;
         }
 
-        if ($actionName === Cancel::getName()) {
+        if ($action::getName() === Cancel::getName()) {
             return self::STATUS_CANCELLED;
         }
 
-        if ($actionName === Decline::getName()) {
+        if ($action::getName() === Decline::getName()) {
             return self::STATUS_FAILED;
         }
 
-        if ($actionName === Complete::getName()) {
+        if ($action::getName() === Complete::getName()) {
             return self::STATUS_COMPLETED;
         }
 
-        if ($actionName === Message::getName()) {
+        if ($action::getName() === Message::getName()) {
             return $this->status;
         }
 
-        if ($actionName === Apply::getName()) {
+        if ($action::getName() === Apply::getName()) {
             return $this->status;
         }
 
-        throw new Exception(self::ACTION_UNKNOWN);
+        throw ActionException::make();
     }
 
     /**
-     * @param string $actionName
+     * @param AbstractAction $action
      * @param int $userId
      * @param int $agentId
      *
      * @throws \Exception
      */
-    public function changeStatusToActive(string $actionName, int $userId, int $agentId)
+    public function changeStatusToActive(AbstractAction $action, int $userId, int $agentId)
     {
-        $userRole = $this->getRoleForUser($userId);
-
-        if ($userRole !== self::ROLE_OWNER) {
-            throw new UnauthorizedException();
+        if (!$action->isOwner($userId, $this->owner_id)) {
+            throw ActionException::make();
         }
 
-        if ($actionName !== Assign::getName() || $this->status !== self::STATUS_NEW) {
-            throw new Exception(self::ACTION_NOT_ALLOWED);
+        if ($action::getName() !== Assign::getName() || $this->status !== self::STATUS_NEW) {
+            throw StatusException::make($this->status);
         }
 
-        // ↓ ↓ ↓ YAGNI or never too much?
         if ($this->agent_id !== null) {
-            throw new Exception(self::ACTION_ASSIGNED);
+            throw RoleException::make($userId, UserRoles::ROLE_AGENT);
         }
 
         $this->setAgentId($agentId);
@@ -195,63 +193,57 @@ class Task implements TaskActions, TaskStatuses, UserRoles
     }
 
     /**
-     * @param string $actionName
+     * @param AbstractAction $action
      * @param int $userId
      *
      * @throws \Exception
      */
-    public function changeStatusToCancelled(string $actionName, int $userId)
+    public function changeStatusToCancelled(AbstractAction $action, int $userId)
     {
-        $userRole = $this->getRoleForUser($userId);
-
-        if ($userRole !== self::ROLE_OWNER) {
-            throw new Exception(self::ACTION_UNAUTHORIZED);
+        if (!$action->isOwner($userId, $this->owner_id)) {
+            throw ActionException::make();
         }
 
-        if ($actionName !== Cancel::getName() || $this->status !== self::STATUS_NEW) {
-            throw new Exception(self::ACTION_NOT_ALLOWED);
+        if ($action::getName() !== Cancel::getName() || $this->status !== self::STATUS_NEW) {
+            throw StatusException::make($this->status);
         }
 
         $this->status = self::STATUS_CANCELLED;
     }
 
     /**
-     * @param string $actionName
+     * @param AbstractAction $action
      * @param int $userId
      *
      * @throws \Exception
      */
-    public function changeStatusToCompleted(string $actionName, int $userId)
+    public function changeStatusToCompleted(AbstractAction $action, int $userId)
     {
-        $userRole = $this->getRoleForUser($userId);
-
-        if ($userRole !== self::ROLE_OWNER) {
-            throw new Exception(self::ACTION_UNAUTHORIZED);
+        if (!$action->isOwner($userId, $this->owner_id)) {
+            throw ActionException::make();
         }
 
-        if ($actionName !== Complete::getName() || $this->status !== self::STATUS_ACTIVE) {
-            throw new Exception(self::ACTION_NOT_ALLOWED);
+        if ($action::getName() !== Complete::getName() || $this->status !== self::STATUS_ACTIVE) {
+            throw StatusException::make($this->status);
         }
 
         $this->status = self::STATUS_COMPLETED;
     }
 
     /**
-     * @param string $actionName
+     * @param AbstractAction $action
      * @param int $userId
      *
      * @throws \Exception
      */
-    public function changeStatusToFailed(string $actionName, int $userId)
+    public function changeStatusToFailed(AbstractAction $action, int $userId)
     {
-        $userRole = $this->getRoleForUser($userId);
-
-        if ($userRole !== self::ROLE_AGENT) {
-            throw new Exception(self::ACTION_UNAUTHORIZED);
+        if (!$action->isAgent($userId, $this->agent_id)) {
+            throw ActionException::make();
         }
 
-        if ($actionName !== Decline::getName() || $this->status !== self::STATUS_ACTIVE) {
-            throw new Exception(self::ACTION_NOT_ALLOWED);
+        if ($action::getName() !== Decline::getName() || $this->status !== self::STATUS_ACTIVE) {
+            throw StatusException::make($this->status);
         }
 
         $this->status = self::STATUS_FAILED;
@@ -313,11 +305,6 @@ class Task implements TaskActions, TaskStatuses, UserRoles
         $availableActions = [];
 
         foreach ($actions as $action) {
-            if (get_parent_class($action) !== AbstractAction::class) {
-                $message = "Class {$action} is not a child of AbstractAction";
-                throw new Exception($message);
-            }
-
             if ($action::verifyPermission($this, $userId)) {
                 array_push($availableActions, $action);
             }

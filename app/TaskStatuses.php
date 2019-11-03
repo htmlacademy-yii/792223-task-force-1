@@ -10,6 +10,4 @@ interface TaskStatuses
     public const STATUS_ACTIVE = 'in progress';
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_EXPIRED = 'expired';
-
-    public const STATUS_EXCEPTION_EXPIRED = 'Task is expired!';
 }
