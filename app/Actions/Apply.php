@@ -12,16 +12,6 @@ class Apply extends AbstractAction
         return 'откликнуться';
     }
 
-    public static function getName($shortName = false): string
-    {
-        if ($shortName) {
-            $path = explode('\\', Apply::class);
-            return array_pop($path);
-        }
-
-        return Apply::class;
-    }
-
     public static function verifyPermission(Task $task, int $userId): bool
     {
         $userRole = $task->getRoleForUser($userId);

@@ -13,16 +13,6 @@ class Cancel extends AbstractAction
         return 'отменить';
     }
 
-    public static function getName($shortName = false): string
-    {
-        if ($shortName) {
-            $path = explode('\\', Cancel::class);
-            return array_pop($path);
-        }
-
-        return Cancel::class;
-    }
-
     public static function verifyPermission(Task $task, int $userId): bool
     {
         $userRole = $task->getRoleForUser($userId);

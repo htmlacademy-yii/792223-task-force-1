@@ -12,16 +12,6 @@ class Message extends AbstractAction
         return 'написать сообщение';
     }
 
-    public static function getName($shortName = false): string
-    {
-        if ($shortName) {
-            $path = explode('\\', Message::class);
-            return array_pop($path);
-        }
-
-        return Message::class;
-    }
-
     public static function verifyPermission(Task $task, int $userId): bool
     {
         $userRole = $task->getRoleForUser($userId);

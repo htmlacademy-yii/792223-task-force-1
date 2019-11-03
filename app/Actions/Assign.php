@@ -13,16 +13,6 @@ class Assign extends AbstractAction
         return 'принять';
     }
 
-    public static function getName($shortName = false): string
-    {
-        if ($shortName) {
-            $path = explode('\\', Assign::class);
-            return array_pop($path);
-        }
-
-        return Assign::class;
-    }
-
     public static function verifyPermission(Task $task, int $userId): bool
     {
         $userRole = $task->getRoleForUser($userId);
