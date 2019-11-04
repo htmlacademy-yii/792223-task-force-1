@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Htmlacademy\Actions;
 
 use Htmlacademy\Models\Task;
-use Htmlacademy\TaskStatuses;
-use Htmlacademy\UserRoles;
 
 class Decline extends AbstractAction
 {
@@ -15,11 +15,8 @@ class Decline extends AbstractAction
 
     public static function verifyPermission(Task $task, int $userId): bool
     {
-        $userRole = $task->getRoleForUser($userId);
-        $taskStatus = $task->getStatus();
-
-        if ($userRole !== UserRoles::ROLE_AGENT ||
-            $taskStatus !== TaskStatuses::STATUS_ACTIVE) {
+        if (!self::isTaskAgent($userId, $task->getAgentId()) ||
+            $task->getStatus() !== $task::STATUS_ACTIVE) {
             return false;
         }
 

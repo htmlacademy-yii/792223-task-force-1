@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Htmlacademy\Actions;
 
 use Htmlacademy\Models\Task;
@@ -24,13 +26,13 @@ abstract class AbstractAction
 
     /**
      * @param int $userId
-     * @param int $agentId
+     * @param int|null $agentId
      *
      * @return bool
      */
-    public function isAgent(int $userId, int $agentId): bool
+    public static function isTaskAgent(int $userId, ?int $agentId): bool
     {
-        return ($userId === $agentId && $userId !== null);
+        return $userId === $agentId;
     }
 
     /**
@@ -39,9 +41,9 @@ abstract class AbstractAction
      *
      * @return bool
      */
-    public function isOwner(int $userId, int $ownerId): bool
+    public static function isTaskOwner(int $userId, int $ownerId): bool
     {
-        return ($userId === $ownerId && $userId !== null);
+        return $userId === $ownerId;
     }
 
     /**

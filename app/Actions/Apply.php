@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Htmlacademy\Actions;
 
 use Htmlacademy\Models\Task;
-use Htmlacademy\TaskStatuses;
 
 class Apply extends AbstractAction
 {
@@ -14,15 +15,13 @@ class Apply extends AbstractAction
 
     public static function verifyPermission(Task $task, int $userId): bool
     {
-        $userRole = $task->getRoleForUser($userId);
-        $taskStatus = $task->getStatus();
-
-        if ($userRole === null &&
-            $taskStatus === TaskStatuses::STATUS_NEW) {
+        //TODO: any user that has role Agent can apply
+        // NEW task do not have agents assigned
+        if (!self::isTaskOwner($userId, $task->getOwnerId()) &&
+            $task->getStatus() === $task::STATUS_NEW) {
             return true;
         }
 
         return false;
     }
 }
-

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Htmlacademy\Models;
 
 use DateTime;
@@ -13,7 +15,6 @@ use Htmlacademy\Actions\Message;
 use Htmlacademy\Exceptions\ActionException;
 use Htmlacademy\Exceptions\RoleException;
 use Htmlacademy\Exceptions\StatusException;
-use Htmlacademy\Exceptions\TaskForceException;
 use Htmlacademy\TaskStatuses;
 use Htmlacademy\UserRoles;
 
@@ -58,7 +59,7 @@ class Task implements TaskStatuses, UserRoles
      *
      * @throws \Exception
      */
-    private function setAgentId(int $userId)
+    private function setAgentId(int $userId): void
     {
         if ($this->owner_id === $userId) {
             throw RoleException::make($userId, UserRoles::ROLE_AGENT);
@@ -66,70 +67,19 @@ class Task implements TaskStatuses, UserRoles
         $this->agent_id = $userId;
     }
 
-    public function getStatus()
+    public function getAgentId(): ?int
+    {
+        return $this->agent_id;
+    }
+
+    public function getOwnerId(): int
+    {
+        return $this->owner_id;
+    }
+
+    public function getStatus(): string
     {
         return $this->status;
-    }
-
-    /**
-     * @param int $userId
-     *
-     * @return string|null
-     */
-    public function getRoleForUser(int $userId)
-    {
-        if ($userId === $this->owner_id) {
-            return self::ROLE_OWNER;
-        }
-        if ($userId === $this->agent_id) {
-            return self::ROLE_AGENT;
-        }
-
-        return null;
-        //throw Exception?
-        //role is optional
-    }
-
-    /**
-     * @param int $userId
-     *
-     * @return array
-     * @throws \Exception
-     */
-    public function getActionsForUser(int $userId): array
-    {
-        if (new DateTime() > $this->expired_at) {
-            return [];
-            //throw ActionException::make();
-        }
-
-        $userRole = $this->getRoleForUser($userId);
-
-        switch ($userRole) {
-            case self::ROLE_OWNER:
-                if ($this->status === self::STATUS_NEW) {
-                    return [Cancel::getName(), Assign::getName()];
-                }
-                if ($this->status === self::STATUS_ACTIVE) {
-                    return [Complete::getName()];
-                }
-                break;
-
-            case self::ROLE_AGENT:
-                if ($this->status === self::STATUS_ACTIVE) {
-                    return [Decline::getName()];
-                }
-                break;
-
-            case null:
-                if ($this->status === self::STATUS_NEW) {
-                    return [Apply::getName()];
-                }
-                break;
-        }
-
-        return [];
-        //throw ActionException::make();
     }
 
     /**
@@ -174,9 +124,9 @@ class Task implements TaskStatuses, UserRoles
      *
      * @throws \Exception
      */
-    public function changeStatusToActive(AbstractAction $action, int $userId, int $agentId)
+    public function changeStatusToActive(AbstractAction $action, int $userId, int $agentId): void
     {
-        if (!$action->isOwner($userId, $this->owner_id)) {
+        if (!$action->isTaskOwner($userId, $this->owner_id)) {
             throw ActionException::make();
         }
 
@@ -198,9 +148,9 @@ class Task implements TaskStatuses, UserRoles
      *
      * @throws \Exception
      */
-    public function changeStatusToCancelled(AbstractAction $action, int $userId)
+    public function changeStatusToCancelled(AbstractAction $action, int $userId): void
     {
-        if (!$action->isOwner($userId, $this->owner_id)) {
+        if (!$action->isTaskOwner($userId, $this->owner_id)) {
             throw ActionException::make();
         }
 
@@ -217,9 +167,9 @@ class Task implements TaskStatuses, UserRoles
      *
      * @throws \Exception
      */
-    public function changeStatusToCompleted(AbstractAction $action, int $userId)
+    public function changeStatusToCompleted(AbstractAction $action, int $userId): void
     {
-        if (!$action->isOwner($userId, $this->owner_id)) {
+        if (!$action->isTaskOwner($userId, $this->owner_id)) {
             throw ActionException::make();
         }
 
@@ -236,9 +186,9 @@ class Task implements TaskStatuses, UserRoles
      *
      * @throws \Exception
      */
-    public function changeStatusToFailed(AbstractAction $action, int $userId)
+    public function changeStatusToFailed(AbstractAction $action, int $userId): void
     {
-        if (!$action->isAgent($userId, $this->agent_id)) {
+        if (!$action->isTaskAgent($userId, $this->agent_id)) {
             throw ActionException::make();
         }
 
@@ -252,7 +202,7 @@ class Task implements TaskStatuses, UserRoles
     /**
      * @throws \Exception
      */
-    public function changeStatusToExpired()
+    public function changeStatusToExpired(): void
     {
         if ($this->status === self::STATUS_NEW && new DateTime() > $this->expired_at) {
             $this->status = self::STATUS_EXPIRED;
@@ -264,7 +214,7 @@ class Task implements TaskStatuses, UserRoles
      *
      * @return array
      */
-    private function getActionsList()
+    private function getActionsList(): array
     {
         return [
             Apply::getName(),
@@ -281,7 +231,7 @@ class Task implements TaskStatuses, UserRoles
      *
      * @return array
      */
-    private function getStatusesList()
+    private function getStatusesList(): array
     {
         return [
             self::STATUS_NEW,
@@ -299,7 +249,7 @@ class Task implements TaskStatuses, UserRoles
      * @return array
      * @throws \Exception
      */
-    public function availableActions($userId)
+    public function getActionsForUser($userId): array
     {
         $actions = $this->getActionsList();
         $availableActions = [];

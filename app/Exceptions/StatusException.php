@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Htmlacademy\Exceptions;
 
 class StatusException extends TaskForceException

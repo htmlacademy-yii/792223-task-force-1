@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Htmlacademy\Actions;
 
 use Htmlacademy\Models\Task;
-use Htmlacademy\TaskStatuses;
 
 class Message extends AbstractAction
 {
@@ -14,11 +15,8 @@ class Message extends AbstractAction
 
     public static function verifyPermission(Task $task, int $userId): bool
     {
-        $userRole = $task->getRoleForUser($userId);
-        $taskStatus = $task->getStatus();
-
-        if ($userRole !== null &&
-            $taskStatus === TaskStatuses::STATUS_ACTIVE) {
+        if ((self::isTaskOwner($userId, $task->getOwnerId()) || self::isTaskAgent($userId, $task->getAgentId())) &&
+            $task->getStatus() === $task::STATUS_ACTIVE) {
             return true;
         }
 
