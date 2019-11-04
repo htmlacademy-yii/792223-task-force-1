@@ -1,20 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Htmlacademy\Models;
 
 use DateTime;
-use Exception;
+use Htmlacademy\Actions\AbstractAction;
 use Htmlacademy\Actions\Apply;
 use Htmlacademy\Actions\Assign;
 use Htmlacademy\Actions\Cancel;
 use Htmlacademy\Actions\Complete;
 use Htmlacademy\Actions\Decline;
 use Htmlacademy\Actions\Message;
-use Htmlacademy\TaskActions;
+use Htmlacademy\Exceptions\ActionException;
+use Htmlacademy\Exceptions\RoleException;
 use Htmlacademy\TaskStatuses;
 use Htmlacademy\UserRoles;
 
-class Task implements TaskActions, TaskStatuses, UserRoles
+class Task implements TaskStatuses, UserRoles
 {
     //private $id;
     private $status;
@@ -53,212 +56,127 @@ class Task implements TaskActions, TaskStatuses, UserRoles
     /**
      * @param int $userId
      *
-     * @throws \Exception
+     * @throws \Htmlacademy\Exceptions\RoleException
      */
-    private function setAgentId(int $userId)
+    private function setAgentId(int $userId): void
     {
         if ($this->owner_id === $userId) {
-            throw new Exception(self::ROLE_FORBIDDEN);
+            throw RoleException::make($userId, self::ROLE_AGENT);
         }
         $this->agent_id = $userId;
     }
 
-    public function getStatus()
+    /** @return int|null */
+    public function getAgentId(): ?int
+    {
+        return $this->agent_id;
+    }
+
+    /** @return int */
+    public function getOwnerId(): int
+    {
+        return $this->owner_id;
+    }
+
+    /** @return string */
+    public function getStatus(): string
     {
         return $this->status;
     }
 
     /**
-     * @param int $userId
-     *
-     * @return string|null
-     */
-    public function getRoleForUser(int $userId)
-    {
-        if ($userId === $this->owner_id) {
-            return self::ROLE_OWNER;
-        }
-        if ($userId === $this->agent_id) {
-            return self::ROLE_AGENT;
-        }
-
-        return null;
-        //throw Exception?
-        //role is optional
-    }
-
-    /**
-     * @param int $userId
-     *
-     * @return array
-     * @throws \Exception
-     */
-    public function getActionsForUser(int $userId): array
-    {
-        if (new DateTime() > $this->expired_at) {
-            return [];
-            //throw new Exception(self::STATUS_EXCEPTION_EXPIRED);
-        }
-
-        $userRole = $this->getRoleForUser($userId);
-
-        switch ($userRole) {
-            case self::ROLE_OWNER:
-                if ($this->status === self::STATUS_NEW) {
-                    return [Cancel::getName(), Assign::getName()];
-                }
-                if ($this->status === self::STATUS_ACTIVE) {
-                    return [Complete::getName()];
-                }
-                break;
-
-            case self::ROLE_AGENT:
-                if ($this->status === self::STATUS_ACTIVE) {
-                    return [Decline::getName()];
-                }
-                break;
-
-            case null:
-                if ($this->status === self::STATUS_NEW) {
-                    return [Apply::getName()];
-                }
-                break;
-        }
-
-        return [];
-        //throw new Exception(self::ACTION_NO_AVAILABLE);
-    }
-
-    /**
-     * @param string $actionName
+     * @param \Htmlacademy\Actions\AbstractAction $action
      *
      * @return string
-     * @throws \Exception
+     * @throws \Htmlacademy\Exceptions\ActionException
      */
-    public function getNextStatusForAction(string $actionName): string
+    public function getNextStatusForAction(AbstractAction $action): string
     {
-        if ($actionName === Assign::getName()) {
+        if ($action::getName() === Assign::getName()) {
             return self::STATUS_ACTIVE;
         }
 
-        if ($actionName === Cancel::getName()) {
+        if ($action::getName() === Cancel::getName()) {
             return self::STATUS_CANCELLED;
         }
 
-        if ($actionName === Decline::getName()) {
+        if ($action::getName() === Decline::getName()) {
             return self::STATUS_FAILED;
         }
 
-        if ($actionName === Complete::getName()) {
+        if ($action::getName() === Complete::getName()) {
             return self::STATUS_COMPLETED;
         }
 
-        if ($actionName === Message::getName()) {
+        if ($action::getName() === Message::getName()) {
             return $this->status;
         }
 
-        if ($actionName === Apply::getName()) {
+        if ($action::getName() === Apply::getName()) {
             return $this->status;
         }
 
-        throw new Exception(self::ACTION_UNKNOWN);
+        throw ActionException::make();
     }
 
     /**
-     * @param string $actionName
      * @param int $userId
      * @param int $agentId
      *
-     * @throws \Exception
+     * @throws \Htmlacademy\Exceptions\ActionException
+     * @throws \Htmlacademy\Exceptions\RoleException
+     * @throws \Htmlacademy\Exceptions\StatusException
      */
-    public function changeStatusToActive(string $actionName, int $userId, int $agentId)
+    public function performAssign(int $userId, int $agentId): void
     {
-        $userRole = $this->getRoleForUser($userId);
-
-        if ($userRole !== self::ROLE_OWNER) {
-            throw new Exception(self::ACTION_UNAUTHORIZED);
-        }
-
-        if ($actionName !== Assign::getName() || $this->status !== self::STATUS_NEW) {
-            throw new Exception(self::ACTION_NOT_ALLOWED);
-        }
-
-        // ↓ ↓ ↓ YAGNI or never too much?
-        if ($this->agent_id !== null) {
-            throw new Exception(self::ACTION_ASSIGNED);
-        }
-
+        Assign::handleValidation($this, $userId);
         $this->setAgentId($agentId);
         $this->status = self::STATUS_ACTIVE;
     }
 
     /**
-     * @param string $actionName
      * @param int $userId
      *
-     * @throws \Exception
+     * @throws \Htmlacademy\Exceptions\ActionException
+     * @throws \Htmlacademy\Exceptions\RoleException
+     * @throws \Htmlacademy\Exceptions\StatusException
      */
-    public function changeStatusToCancelled(string $actionName, int $userId)
+    public function performCancel(int $userId): void
     {
-        $userRole = $this->getRoleForUser($userId);
-
-        if ($userRole !== self::ROLE_OWNER) {
-            throw new Exception(self::ACTION_UNAUTHORIZED);
-        }
-
-        if ($actionName !== Cancel::getName() || $this->status !== self::STATUS_NEW) {
-            throw new Exception(self::ACTION_NOT_ALLOWED);
-        }
-
+        Cancel::handleValidation($this, $userId);
         $this->status = self::STATUS_CANCELLED;
     }
 
     /**
-     * @param string $actionName
      * @param int $userId
      *
-     * @throws \Exception
+     * @throws \Htmlacademy\Exceptions\ActionException
+     * @throws \Htmlacademy\Exceptions\RoleException
+     * @throws \Htmlacademy\Exceptions\StatusException
      */
-    public function changeStatusToCompleted(string $actionName, int $userId)
+    public function performComplete(int $userId): void
     {
-        $userRole = $this->getRoleForUser($userId);
-
-        if ($userRole !== self::ROLE_OWNER) {
-            throw new Exception(self::ACTION_UNAUTHORIZED);
-        }
-
-        if ($actionName !== Complete::getName() || $this->status !== self::STATUS_ACTIVE) {
-            throw new Exception(self::ACTION_NOT_ALLOWED);
-        }
-
+        Complete::handleValidation($this, $userId);
         $this->status = self::STATUS_COMPLETED;
     }
 
     /**
-     * @param string $actionName
      * @param int $userId
      *
-     * @throws \Exception
+     * @throws \Htmlacademy\Exceptions\ActionException
+     * @throws \Htmlacademy\Exceptions\RoleException
+     * @throws \Htmlacademy\Exceptions\StatusException
      */
-    public function changeStatusToFailed(string $actionName, int $userId)
+    public function performDecline(int $userId): void
     {
-        $userRole = $this->getRoleForUser($userId);
-
-        if ($userRole !== self::ROLE_AGENT) {
-            throw new Exception(self::ACTION_UNAUTHORIZED);
-        }
-
-        if ($actionName !== Decline::getName() || $this->status !== self::STATUS_ACTIVE) {
-            throw new Exception(self::ACTION_NOT_ALLOWED);
-        }
-
+        Decline::handleValidation($this, $userId);
         $this->status = self::STATUS_FAILED;
     }
 
     /**
      * @throws \Exception
      */
-    public function changeStatusToExpired()
+    public function performExpire(): void
     {
         if ($this->status === self::STATUS_NEW && new DateTime() > $this->expired_at) {
             $this->status = self::STATUS_EXPIRED;
@@ -266,11 +184,35 @@ class Task implements TaskActions, TaskStatuses, UserRoles
     }
 
     /**
+     * @param int $userId
+     *
+     * @throws \Htmlacademy\Exceptions\ActionException
+     * @throws \Htmlacademy\Exceptions\RoleException
+     * @throws \Htmlacademy\Exceptions\StatusException
+     */
+    public function performApply(int $userId): void
+    {
+        Apply::handleValidation($this, $userId);
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @throws \Htmlacademy\Exceptions\ActionException
+     * @throws \Htmlacademy\Exceptions\RoleException
+     * @throws \Htmlacademy\Exceptions\StatusException
+     */
+    public function performMessage(int $userId): void
+    {
+        Message::handleValidation($this, $userId);
+    }
+
+    /**
      * Get list of all actions
      *
      * @return array
      */
-    private function getActionsList()
+    private function getActionsList(): array
     {
         return [
             Apply::getName(),
@@ -287,7 +229,7 @@ class Task implements TaskActions, TaskStatuses, UserRoles
      *
      * @return array
      */
-    private function getStatusesList()
+    private function getStatusesList(): array
     {
         return [
             self::STATUS_NEW,
@@ -303,29 +245,14 @@ class Task implements TaskActions, TaskStatuses, UserRoles
      * @param $userId
      *
      * @return array
-     * @throws \Exception
      */
-    public function availableActions($userId)
+    public function getActionsForUser($userId): array
     {
         $actions = $this->getActionsList();
         $availableActions = [];
 
-        foreach($actions as $action)
-        {
-            $action = ucfirst($action);
-            $actionClass = 'Htmlacademy\Actions\\' . $action;
-
-            if(!class_exists($actionClass, true)) {
-                $message = "Class {$actionClass} does not exist";
-                throw new Exception($message);
-            }
-
-            if(!method_exists($actionClass, 'verifyPermission')) {
-                $message = 'Method verifyPermission does not exist in class ' . $actionClass;
-                throw new Exception($message);
-            }
-
-            if ($actionClass::verifyPermission($this, $userId)) {
+        foreach ($actions as $action) {
+            if ($action::verifyPermission($this, $userId)) {
                 array_push($availableActions, $action);
             }
         }

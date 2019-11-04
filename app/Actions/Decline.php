@@ -1,33 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Htmlacademy\Actions;
 
+use Htmlacademy\Exceptions\ActionException;
+use Htmlacademy\Exceptions\StatusException;
 use Htmlacademy\Models\Task;
-use Htmlacademy\TaskStatuses;
-use Htmlacademy\UserRoles;
 
 class Decline extends AbstractAction
 {
+    /** @inheritdoc */
     public static function getSlug(): string
     {
         return 'отказаться';
     }
 
-    public static function getName(): string
+    /** @inheritdoc */
+    public static function handleValidation(Task $task, int $userId): void
     {
-        return 'decline';
-    }
-
-    public static function verifyPermission(Task $task, int $userId): bool
-    {
-        $userRole = $task->getRoleForUser($userId);
-        $taskStatus = $task->getStatus();
-
-        if ($userRole !== UserRoles::ROLE_AGENT ||
-            $taskStatus !== TaskStatuses::STATUS_ACTIVE) {
-            return false;
+        if ($task->getStatus() !== $task::STATUS_ACTIVE) {
+            throw StatusException::make($task->getStatus());
         }
 
-        return true;
+        if (!self::isTaskAgent($userId, $task->getAgentId())) {
+            throw ActionException::make();
+        }
     }
 }
