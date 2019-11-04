@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Htmlacademy\Actions;
 
+use Htmlacademy\Exceptions\TaskForceException;
 use Htmlacademy\Models\Task;
 
 abstract class AbstractAction
 {
     /**
      * Action name getter
+     *
      * @param bool $shortName [optional]
      *
      * @return string
@@ -18,6 +20,7 @@ abstract class AbstractAction
     {
         if ($shortName) {
             $path = explode('\\', get_called_class());
+
             return array_pop($path);
         }
 
@@ -47,6 +50,24 @@ abstract class AbstractAction
     }
 
     /**
+     * @param \Htmlacademy\Models\Task $task
+     * @param int $userId
+     *
+     * @return bool
+     */
+    public static function verifyPermission(Task $task, int $userId): bool
+    {
+        $action = self::getName();
+        try {
+            $action::handleValidation($task, $userId);
+        } catch (TaskForceException $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Action slug getter
      *
      * @return string
@@ -57,7 +78,9 @@ abstract class AbstractAction
      * @param \Htmlacademy\Models\Task $task
      * @param int $userId
      *
-     * @return bool
+     * @throws \Htmlacademy\Exceptions\ActionException
+     * @throws \Htmlacademy\Exceptions\RoleException
+     * @throws \Htmlacademy\Exceptions\StatusException
      */
-    abstract public static function verifyPermission(Task $task, int $userId): bool;
+    abstract public static function handleValidation(Task $task, int $userId): void;
 }

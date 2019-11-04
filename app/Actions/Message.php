@@ -4,22 +4,27 @@ declare(strict_types=1);
 
 namespace Htmlacademy\Actions;
 
+use Htmlacademy\Exceptions\ActionException;
+use Htmlacademy\Exceptions\StatusException;
 use Htmlacademy\Models\Task;
 
 class Message extends AbstractAction
 {
+    /** @inheritdoc */
     public static function getSlug(): string
     {
         return 'написать сообщение';
     }
 
-    public static function verifyPermission(Task $task, int $userId): bool
+    /** @inheritdoc */
+    public static function handleValidation(Task $task, int $userId): void
     {
-        if ((self::isTaskOwner($userId, $task->getOwnerId()) || self::isTaskAgent($userId, $task->getAgentId())) &&
-            $task->getStatus() === $task::STATUS_ACTIVE) {
-            return true;
+        if ($task->getStatus() !== $task::STATUS_ACTIVE) {
+            throw StatusException::make($task->getStatus());
         }
 
-        return false;
+        if (!self::isTaskOwner($userId, $task->getOwnerId()) && !self::isTaskAgent($userId, $task->getAgentId())) {
+            throw ActionException::make();
+        }
     }
 }
