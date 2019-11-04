@@ -41,35 +41,37 @@ assert($task2->getActionsForUser($ownerId) === [Assign::getName(), Cancel::getNa
 assert($task2->getActionsForUser($passerbyId) === [Apply::getName()], 'passerby action(s) for new task');
 
 //assert for getActionsForUser ACTIVE task
-$task2->changeStatusToActive(new Assign, $ownerId, $agentId);
+$task2->performAssign($ownerId, $agentId);
+//var_dump($task2->getActionsForUser($ownerId));
+//var_dump($task2->getActionsForUser($agentId));
 assert($task2->getActionsForUser($ownerId) === [Complete::getName(), Message::getName()], 'owner action(s) for active task');
 assert($task2->getActionsForUser($agentId) === [Decline::getName(), Message::getName()], 'agent action(s) for active task');
 assert($task2->getActionsForUser($passerbyId) === [], 'passerby action(s) for active task');
 
 //assert for getActionsForUser COMPLETED task
-$task2->changeStatusToCompleted(new Complete, $ownerId);
+$task2->performComplete($ownerId);
 assert($task2->getActionsForUser($ownerId) === [], 'owner action(s) for completed task');
 assert($task2->getActionsForUser($agentId) === [], 'agent action(s) for completed task');
 assert($task2->getActionsForUser($passerbyId) === [], 'passerby action(s) for completed task');
 
 //assert for getActionsForUser CANCELLED task
 $task3 = new Task($ownerId, $tomorrow);
-$task3->changeStatusToCancelled(new Cancel, $ownerId);
+$task3->performCancel($ownerId);
 assert($task3->getActionsForUser($ownerId) === [], 'owner action(s) for cancelled task');
 assert($task3->getActionsForUser($agentId) === [], 'agent action(s) for cancelled task');
 assert($task3->getActionsForUser($passerbyId) === [], 'passerby action(s) for cancelled task');
 
 //assert for getActionsForUser FAILED task
 $task4 = new Task($ownerId, $tomorrow);
-$task4->changeStatusToActive(new Assign, $ownerId, $agentId);
-$task4->changeStatusToFailed(new Decline, $agentId);
+$task4->performAssign($ownerId, $agentId);
+$task4->performDecline($agentId);
 assert($task4->getActionsForUser($ownerId) === [], 'owner action(s) for failed task');
 assert($task4->getActionsForUser($agentId) === [], 'agent action(s) for failed task');
 assert($task4->getActionsForUser($passerbyId) === [], 'passerby action(s) for failed task');
 
 //assert for getActionsForUser EXPIRED task
 $task5 = new Task($ownerId, $yesterday);
-$task5->changeStatusToExpired();
+$task5->performExpire();
 assert($task5->getActionsForUser($ownerId) === [], 'owner action(s) for expired task');
 assert($task5->getActionsForUser($agentId) === [], 'agent action(s) for expired task');
 assert($task5->getActionsForUser($passerbyId) === [], 'passerby action(s) for expired task');
