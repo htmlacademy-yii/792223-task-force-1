@@ -4,14 +4,12 @@ CREATE DATABASE IF NOT EXISTS `taskforce`
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`locations` (
   `id` INT NOT NULL,
-  `city_name` VARCHAR(45) NOT NULL,
+  `city` VARCHAR(45) NOT NULL,
+  `latitude` DOUBLE NULL,
+  `longitude` DOUBLE NULL,
   `district` VARCHAR(45) NULL,
   `street` VARCHAR(45) NULL,
   `zip_code` VARCHAR(45) NULL,
-  `latitude` VARCHAR(45) NULL,
-  `longitude` VARCHAR(45) NULL,
-  `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
@@ -61,12 +59,11 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`users` (
   `last_name` VARCHAR(45) NOT NULL,
   `bio` TEXT(1000) NULL,
   `date_of_birth` DATETIME NOT NULL,
-  `telephone` VARCHAR(45) NULL,
+  `phone` VARCHAR(45) NULL,
   `skype` VARCHAR(45) NULL,
   `other_messenger` VARCHAR(45) NULL,
   `location_id` INT NOT NULL,
   `profile_views` INT NOT NULL DEFAULT 0,
-  `failed_tasks` INT NOT NULL DEFAULT 0,
   `last_active_at` DATETIME NOT NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
