@@ -24,7 +24,6 @@ task_id,user_id,is_completed,rating,comment,created_at,updated_at
 19,2,1,3,"Praesent lectus. Vestibulum quam sapien, varius ut, blandit non, interdum in, ante.",2019-10-11 02:31:34,2019-10-11 02:31:34
 22,13,1,5,"Mauris ullamcorper purus sit amet nulla. Quisque arcu libero, rutrum ac, lobortis vel, dapibus at, diam. Nam tristique tortor eu pede.",2019-10-16 18:40:15,2019-10-16 18:40:15
 27,13,1,2,Ut at dolor quis odio consequat varius.,2019-10-17 06:41:29,2019-10-17 06:41:29
-19,6,1,2,"Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa. Donec dapibus. Duis at velit eu est congue elementum.",2019-10-17 22:14:09,2019-10-17 22:14:09
 19,6,0,5,"Vestibulum quam sapien, varius ut, blandit non, interdum in, ante.",2019-10-18 11:50:00,2019-10-18 11:50:00
 40,19,1,5,"Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis.",2019-10-26 09:50:25,2019-10-26 09:50:25
 2,19,0,2,Nulla nisl.,2019-10-27 20:11:04,2019-10-27 20:11:04

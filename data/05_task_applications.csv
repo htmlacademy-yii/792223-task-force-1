@@ -51,7 +51,6 @@ task_id,user_id,price,comment,is_rejected,created_at,updated_at
 43,19,6488,Nullam molestie nibh in lectus. Pellentesque at nulla. Suspendisse potenti.,0,2019-10-03 11:20:07,2019-10-03 11:20:07
 14,6,3584,Nulla tempus. Vivamus in felis eu sapien cursus vestibulum.,0,2019-06-10 01:49:58,2019-06-10 01:49:58
 30,7,1947,"Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci.",0,2019-07-18 14:20:33,2019-07-18 14:20:33
-9,6,2677,Curabitur convallis.,1,2019-09-01 16:11:30,2019-09-01 16:11:30
 48,11,2239,Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst.,1,2019-06-22 09:14:31,2019-06-22 09:14:31
 15,9,1067,Integer a nibh. In quis justo. Maecenas rhoncus aliquam lacus.,0,2019-08-08 10:15:50,2019-08-08 10:15:50
 44,15,3330,Aenean lectus.,0,2019-07-15 19:42:07,2019-07-15 19:42:07
@@ -81,14 +80,11 @@ task_id,user_id,price,comment,is_rejected,created_at,updated_at
 40,4,5239,Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem.,0,2019-09-06 01:59:56,2019-09-06 01:59:56
 40,18,6131,Donec dapibus.,1,2019-10-07 07:21:36,2019-10-07 07:21:36
 8,16,4309,In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt.,1,2019-06-27 11:11:26,2019-06-27 11:11:26
-40,4,965,"Donec quis orci eget orci vehicula condimentum. Curabitur in libero ut massa volutpat convallis. Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo.",0,2019-06-12 02:52:37,2019-06-12 02:52:37
 38,9,2633,"Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh.",0,2019-08-30 14:03:27,2019-08-30 14:03:27
-34,19,5729,Aenean lectus.,1,2019-09-10 07:04:02,2019-09-10 07:04:02
 2,19,2684,Phasellus sit amet erat.,1,2019-09-21 20:46:54,2019-09-21 20:46:54
 24,10,4082,Donec posuere metus vitae ipsum. Aliquam non mauris.,1,2019-07-20 08:14:19,2019-07-20 08:14:19
 43,2,3730,"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin interdum mauris non ligula pellentesque ultrices. Phasellus id sapien in sapien iaculis congue.",0,2019-06-09 21:30:42,2019-06-09 21:30:42
 36,19,8471,"Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula.",1,2019-08-27 04:54:48,2019-08-27 04:54:48
-43,6,8766,Morbi porttitor lorem id ligula.,1,2019-08-26 18:15:25,2019-08-26 18:15:25
 32,2,6057,"Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus.",0,2019-09-09 12:27:38,2019-09-09 12:27:38
 35,17,6956,Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit.,1,2019-09-03 06:36:05,2019-09-03 06:36:05
 32,16,7271,Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis faucibus accumsan odio.,1,2019-10-04 10:25:44,2019-10-04 10:25:44
