@@ -8,7 +8,18 @@ use SplFileObject;
 
 class SqlFileWriter
 {
-    private $directoryPath = ('../../data/sql_dump/');
+    /** @var string */
+    private $directoryPath;
+
+    /**
+     * SqlFileWriter constructor.
+     *
+     * @param string $directoryPath
+     */
+    public function __construct(string $directoryPath)
+    {
+        $this->directoryPath = $directoryPath;
+    }
 
     /**
      * Export data in file and return path to file

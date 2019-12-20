@@ -10,8 +10,13 @@ use SplFileObject;
 
 class CsvParser
 {
+    /** @var \SplFileObject */
     private $file;
+
+    /** @var resource */
     private $filePointer;
+
+    /** @var array */
     private $data = [];
 
     public function __construct(SplFileObject $file)
@@ -23,7 +28,7 @@ class CsvParser
      * @throws \Htmlacademy\Exceptions\FileFormatException
      * @throws \Htmlacademy\Exceptions\SourceFileException
      */
-    public function parse(): void
+    private function parse(): void
     {
         if (!$this->file->isFile()) {
             throw new SourceFileException("File {$this->file->getFilename()} does not exist");
@@ -52,9 +57,15 @@ class CsvParser
 
     /**
      * @return array
+     * @throws \Htmlacademy\Exceptions\FileFormatException
+     * @throws \Htmlacademy\Exceptions\SourceFileException
      */
     public function getHeaderRow(): array
     {
+        if (empty($this->data)) {
+            $this->parse();
+        }
+
         return $this->data[0];
     }
 
@@ -62,12 +73,19 @@ class CsvParser
      * @param bool $withHeader
      *
      * @return array
+     * @throws \Htmlacademy\Exceptions\FileFormatException
+     * @throws \Htmlacademy\Exceptions\SourceFileException
      */
     public function getData(bool $withHeader = false): array
     {
+        if (empty($this->data)) {
+            $this->parse();
+        }
+
         if ($withHeader) {
             return $this->data;
         }
+
         return array_slice($this->data, 1);
     }
 

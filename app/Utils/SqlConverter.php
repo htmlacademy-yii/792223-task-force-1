@@ -9,6 +9,18 @@ use Htmlacademy\Exceptions\SourceFileException;
 class SqlConverter
 {
     /**
+     * Database connection resource
+     *
+     * @var \mysqli
+     */
+    private $connection;
+
+    public function __construct(\mysqli $connection)
+    {
+        $this->connection = $connection;
+    }
+
+    /**
      * Wrap strings in quoted identifiers.
      * For table and column names.
      *
@@ -48,12 +60,16 @@ class SqlConverter
             if (is_numeric($formatValue)) {
                 return (int)$formatValue;
             } else {
+                $formatValue = $this->connection->real_escape_string($formatValue);
+
                 return "'{$formatValue}'";
             }
         }, $values);
     }
 
     /**
+     * Create INSERT INTO statement
+     *
      * @param string $table
      * @param array $columns
      * @param array $values

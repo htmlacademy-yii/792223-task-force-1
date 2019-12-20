@@ -8,19 +8,23 @@ use Htmlacademy\Exceptions\SourceFileException;
 
 require_once '../../vendor/autoload.php';
 
-$directory = '../../data/';
-$csvFiles = array_filter(scandir($directory), function ($extension) {
+$configs = require '../../config/database.php';
+$db = $configs['connections']['taskforce'];
+$connection = new mysqli($db['host'], $db['username'], $db['password'], $db['database']);
+$dirImport = '../../data/';
+$dirExport = '../../data/sql_dump/';
+
+$csvFiles = array_filter(scandir($dirImport), function ($extension) {
     return substr($extension, -4) === '.csv';
 });
 
 foreach ($csvFiles as $file) {
-    $import = new SplFileObject($directory . $file);
+    $import = new SplFileObject($dirImport . $file);
     $parser = new CsvParser($import);
-    $converter = new SqlConverter();
-    $writer = new SqlFileWriter();
+    $converter = new SqlConverter($connection);
+    $writer = new SqlFileWriter($dirExport);
 
     try {
-        $parser->parse();
         $values = $parser->getData();
         $columns = $parser->getHeaderRow();
     } catch (SourceFileException $e) {
