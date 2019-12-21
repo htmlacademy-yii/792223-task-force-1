@@ -1,22 +1,22 @@
+DROP DATABASE IF EXISTS `taskforce`;
+
 CREATE DATABASE IF NOT EXISTS `taskforce`
   DEFAULT CHARACTER SET utf8
   DEFAULT COLLATE utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`locations` (
-  `id` INT NOT NULL,
-  `city_name` VARCHAR(45) NOT NULL,
-  `district` VARCHAR(45) NULL,
-  `street` VARCHAR(45) NULL,
-  `zip_code` VARCHAR(45) NULL,
-  `latitude` VARCHAR(45) NULL,
-  `longitude` VARCHAR(45) NULL,
-  `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `city` VARCHAR(100) NOT NULL,
+  `latitude` DOUBLE NULL,
+  `longitude` DOUBLE NULL,
+#`district` VARCHAR(45) NULL,
+#`street` VARCHAR(100) NULL,
+#`zip_code` VARCHAR(45) NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`task_categories` (
-  `id` INT NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `slug` VARCHAR(45) NOT NULL,
   `created_at` DATETIME NOT NULL,
@@ -26,16 +26,16 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_categories` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`tasks` (
-  `id` INT NOT NULL,
-  `owner_id` INT NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `owner_id` INT UNSIGNED NOT NULL,
   `status` ENUM ('new','cancelled','failed','in progress','completed','expired') NOT NULL,
-  `agent_id` INT NULL,
-  `name` VARCHAR(45) NOT NULL,
+  `agent_id` INT UNSIGNED NULL,
+  `name` VARCHAR(100) NOT NULL,
   `description` TEXT(1000) NOT NULL,
   `price` INT UNSIGNED NOT NULL,
   `expired_at` DATETIME NOT NULL,
-  `category_id` INT NOT NULL,
-  `location_id` INT NULL,
+  `category_id` INT UNSIGNED NOT NULL,
+  `location_id` INT UNSIGNED NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
@@ -54,19 +54,18 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`tasks` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`users` (
-  `id` INT NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `email` VARCHAR(320) NOT NULL,
-  `password` VARCHAR(45) NOT NULL,
-  `first_name` VARCHAR(45) NOT NULL,
-  `last_name` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(100) NOT NULL,
+  `first_name` VARCHAR(100) NOT NULL,
+  `last_name` VARCHAR(100) NOT NULL,
   `bio` TEXT(1000) NULL,
   `date_of_birth` DATETIME NOT NULL,
-  `telephone` VARCHAR(45) NULL,
+  `phone` VARCHAR(45) NULL,
   `skype` VARCHAR(45) NULL,
   `other_messenger` VARCHAR(45) NULL,
-  `location_id` INT NOT NULL,
-  `profile_views` INT NOT NULL DEFAULT 0,
-  `failed_tasks` INT NOT NULL DEFAULT 0,
+  `location_id` INT UNSIGNED NOT NULL,
+  `profile_views` INT UNSIGNED NOT NULL DEFAULT 0,
   `last_active_at` DATETIME NOT NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
@@ -81,11 +80,11 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`users` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`task_applications` (
-  `task_id` INT NOT NULL,
-  `user_id` INT NOT NULL,
+  `task_id` INT UNSIGNED NOT NULL,
+  `user_id` INT UNSIGNED NOT NULL,
   `price` INT UNSIGNED NOT NULL,
-  `comment` VARCHAR(45) NOT NULL,
-  `is_rejected` TINYINT NOT NULL,
+  `comment` VARCHAR(500) NOT NULL,
+  `is_rejected` TINYINT UNSIGNED NOT NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   INDEX `fk_task_applications_users1_idx` (`user_id` ASC),
@@ -105,11 +104,11 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_applications` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`task_reviews` (
-  `task_id` INT NOT NULL,
-  `user_id` INT NOT NULL,
-  `is_completed` TINYINT NOT NULL,
-  `rating` TINYINT NULL,
-  `comment` VARCHAR(45) NULL,
+  `task_id` INT UNSIGNED NOT NULL,
+  `user_id` INT UNSIGNED NOT NULL,
+  `is_completed` TINYINT UNSIGNED NOT NULL,
+  `rating` TINYINT UNSIGNED NULL,
+  `comment` VARCHAR(500) NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   INDEX `fk_task_reviews_users1_idx` (`user_id` ASC),
@@ -129,7 +128,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_reviews` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`user_settings` (
-  `user_id` INT NOT NULL,
+  `user_id` INT UNSIGNED NOT NULL,
   `notify_task_updates` TINYINT NOT NULL,
   `notify_reviews` TINYINT NOT NULL,
   `notify_messages` TINYINT NOT NULL,
@@ -148,10 +147,10 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`user_settings` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`notifications` (
-  `id` INT NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `type` VARCHAR(45) NOT NULL,
-  `user_id` INT NOT NULL,
-  `message` VARCHAR(45) NOT NULL,
+  `user_id` INT UNSIGNED NOT NULL,
+  `message` VARCHAR(500) NOT NULL,
   `read_at` DATETIME NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
@@ -165,10 +164,10 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`notifications` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`chats` (
-  `id` INT NOT NULL,
-  `task_id` INT NOT NULL,
-  `task_owner_id` INT NOT NULL,
-  `task_agent_id` INT NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `task_id` INT UNSIGNED NOT NULL,
+  `task_owner_id` INT UNSIGNED NOT NULL,
+  `task_agent_id` INT UNSIGNED NOT NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
@@ -194,10 +193,10 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`chats` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`chat_messages` (
-  `id` INT NOT NULL,
-  `message` VARCHAR(100) NOT NULL,
-  `chat_id` INT NOT NULL,
-  `author_id` INT NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `message` VARCHAR(500) NOT NULL,
+  `chat_id` INT UNSIGNED NOT NULL,
+  `author_id` INT UNSIGNED NOT NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
@@ -216,8 +215,8 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`chat_messages` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`user_qualifications` (
-  `user_id` INT NOT NULL,
-  `category_id` INT NOT NULL,
+  `user_id` INT UNSIGNED NOT NULL,
+  `category_id` INT UNSIGNED NOT NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   INDEX `fk_qualifications_users1_idx` (`user_id` ASC),
@@ -237,8 +236,8 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`user_qualifications` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`user_favorites` (
-  `user_id` INT NOT NULL,
-  `favourite_id` INT NOT NULL,
+  `user_id` INT UNSIGNED NOT NULL,
+  `favourite_id` INT UNSIGNED NOT NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   INDEX `fk_user_favorites_users1_idx` (`user_id` ASC),
@@ -258,14 +257,14 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`user_favorites` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`task_attachments` (
-  `id` INT NOT NULL,
-  `tasks_id` INT NOT NULL,
-  `name` VARCHAR(45) NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `tasks_id` INT UNSIGNED NOT NULL,
+  `name` VARCHAR(100) NOT NULL,
   `extension` VARCHAR(45) NOT NULL,
   `mime` VARCHAR(45) NOT NULL,
-  `size` INT NOT NULL,
-  `path` VARCHAR(45) NOT NULL,
-  `hash` VARCHAR(45) NOT NULL,
+  `size` INT UNSIGNED NOT NULL,
+  `path` VARCHAR(100) NOT NULL,
+  `hash` VARCHAR(100) NOT NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
@@ -278,14 +277,14 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_attachments` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`user_attachments` (
-  `id` INT NOT NULL,
-  `author_id` INT NOT NULL,
-  `name` VARCHAR(45) NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `author_id` INT UNSIGNED NOT NULL,
+  `name` VARCHAR(100) NOT NULL,
   `extension` VARCHAR(45) NOT NULL,
   `mime` VARCHAR(45) NOT NULL,
-  `size` INT NOT NULL,
-  `path` VARCHAR(45) NOT NULL,
-  `hash` VARCHAR(45) NOT NULL,
+  `size` INT UNSIGNED NOT NULL,
+  `path` VARCHAR(100) NOT NULL,
+  `hash` VARCHAR(100) NOT NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
@@ -296,3 +295,8 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`user_attachments` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
+
+### DROP TABLE EXAMPLE ###
+SET FOREIGN_KEY_CHECKS=0;
+DROP TABLE `taskforce`.`tasks`, `taskforce`.`users`;
+SET FOREIGN_KEY_CHECKS=1;

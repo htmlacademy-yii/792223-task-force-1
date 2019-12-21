@@ -1,0 +1,30 @@
+task_id,user_id,is_completed,rating,comment,created_at,updated_at
+12,18,0,4,Duis bibendum. Morbi non quam nec dui luctus rutrum.,2019-06-27 10:47:14,2019-06-27 10:47:14
+50,12,1,5,Nulla tempus. Vivamus in felis eu sapien cursus vestibulum. Proin eu mi.,2019-07-08 06:36:39,2019-07-08 06:36:39
+38,17,1,1,Morbi a ipsum.,2019-07-17 03:42:43,2019-07-17 03:42:43
+16,12,0,5,Nullam sit amet turpis elementum ligula vehicula consequat.,2019-07-24 04:22:12,2019-07-24 04:22:12
+20,8,1,2,Etiam pretium iaculis justo. In hac habitasse platea dictumst.,2019-08-02 23:31:29,2019-08-02 23:31:29
+5,11,1,3,Etiam pretium iaculis justo. In hac habitasse platea dictumst. Etiam faucibus cursus urna.,2019-08-14 23:27:11,2019-08-14 23:27:11
+48,4,0,1,Nam nulla.,2019-08-20 18:49:06,2019-08-20 18:49:06
+42,16,0,5,Praesent id massa id nisl venenatis lacinia.,2019-08-21 09:17:17,2019-08-21 09:17:17
+23,16,0,5,Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim.,2019-09-04 07:47:26,2019-09-04 07:47:26
+43,18,1,1,Etiam vel augue. Vestibulum rutrum rutrum neque.,2019-09-04 13:44:15,2019-09-04 13:44:15
+26,1,1,1,Praesent id massa id nisl venenatis lacinia.,2019-09-06 02:16:45,2019-09-06 02:16:45
+2,8,1,3,Nulla facilisi.,2019-09-06 09:06:43,2019-09-06 09:06:43
+44,5,1,2,"Quisque arcu libero, rutrum ac, lobortis vel, dapibus at, diam.",2019-09-13 10:34:47,2019-09-13 10:34:47
+19,9,1,4,"Nunc rhoncus dui vel sem. Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci.",2019-09-18 18:05:35,2019-09-18 18:05:35
+5,10,0,5,"Nam dui. Proin leo odio, porttitor id, consequat in, consequat ut, nulla. Sed accumsan felis.",2019-09-19 15:25:49,2019-09-19 15:25:49
+12,20,0,1,"Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",2019-09-19 22:13:54,2019-09-19 22:13:54
+2,10,0,2,"Cras mi pede, malesuada in, imperdiet et, commodo vulputate, justo. In blandit ultrices enim. Lorem ipsum dolor sit amet, consectetuer adipiscing elit.",2019-09-21 05:23:36,2019-09-21 05:23:36
+6,13,1,2,Donec dapibus.,2019-10-04 02:51:56,2019-10-04 02:51:56
+13,5,1,5,"Mauris ullamcorper purus sit amet nulla. Quisque arcu libero, rutrum ac, lobortis vel, dapibus at, diam. Nam tristique tortor eu pede.",2019-10-05 18:33:59,2019-10-05 18:33:59
+50,2,1,3,"Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus.",2019-10-06 05:48:27,2019-10-06 05:48:27
+4,5,1,2,"In est risus, auctor sed, tristique in, tempus sit amet, sem.",2019-10-08 03:51:36,2019-10-08 03:51:36
+49,1,1,4,"Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus.",2019-10-09 05:38:35,2019-10-09 05:38:35
+19,2,1,3,"Praesent lectus. Vestibulum quam sapien, varius ut, blandit non, interdum in, ante.",2019-10-11 02:31:34,2019-10-11 02:31:34
+22,13,1,5,"Mauris ullamcorper purus sit amet nulla. Quisque arcu libero, rutrum ac, lobortis vel, dapibus at, diam. Nam tristique tortor eu pede.",2019-10-16 18:40:15,2019-10-16 18:40:15
+27,13,1,2,Ut at dolor quis odio consequat varius.,2019-10-17 06:41:29,2019-10-17 06:41:29
+19,6,0,5,"Vestibulum quam sapien, varius ut, blandit non, interdum in, ante.",2019-10-18 11:50:00,2019-10-18 11:50:00
+40,19,1,5,"Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis.",2019-10-26 09:50:25,2019-10-26 09:50:25
+2,19,0,2,Nulla nisl.,2019-10-27 20:11:04,2019-10-27 20:11:04
+22,20,1,4,Curabitur in libero ut massa volutpat convallis.,2019-10-28 21:16:21,2019-10-28 21:16:21
