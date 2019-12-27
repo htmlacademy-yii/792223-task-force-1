@@ -19,6 +19,9 @@ class CsvParser
     /** @var array */
     private $data = [];
 
+    /** @var bool */
+    private $isParsed = false;
+
     public function __construct(SplFileObject $file)
     {
         $this->file = $file;
@@ -53,6 +56,8 @@ class CsvParser
         while ($line = $this->getNextLine()) {
             $this->data[] = $line;
         }
+
+        $this->isParsed = true;
     }
 
     /**
@@ -62,7 +67,7 @@ class CsvParser
      */
     public function getHeaderRow(): array
     {
-        if (empty($this->data)) {
+        if (!$this->isParsed) {
             $this->parse();
         }
 
@@ -78,15 +83,21 @@ class CsvParser
      */
     public function getData(bool $withHeader = false): array
     {
-        if (empty($this->data)) {
+        if (!$this->isParsed) {
             $this->parse();
+        }
+
+        $dataWithoutHeader = array_slice($this->data, 1);
+
+        if (empty($dataWithoutHeader) || empty($this->data)) {
+            throw new SourceFileException("Not enough rows in {$this->file->getFilename()} file");
         }
 
         if ($withHeader) {
             return $this->data;
         }
 
-        return array_slice($this->data, 1);
+        return $dataWithoutHeader;
     }
 
     /**

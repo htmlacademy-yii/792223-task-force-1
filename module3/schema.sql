@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`users` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`task_applications` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `task_id` INT UNSIGNED NOT NULL,
   `user_id` INT UNSIGNED NOT NULL,
   `price` INT UNSIGNED NOT NULL,
@@ -90,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_applications` (
   INDEX `fk_task_applications_users1_idx` (`user_id` ASC),
   INDEX `fk_task_applications_tasks1_idx` (`task_id` ASC),
   UNIQUE INDEX `uidx_application` (`task_id` ASC, `user_id` ASC),
-  PRIMARY KEY (`user_id`, `task_id`),
+  PRIMARY KEY (`id`),
   CONSTRAINT `fk_task_applications_users1`
     FOREIGN KEY (`user_id`)
     REFERENCES `taskforce`.`users` (`id`)
@@ -104,6 +105,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_applications` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`task_reviews` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `task_id` INT UNSIGNED NOT NULL,
   `user_id` INT UNSIGNED NOT NULL,
   `is_completed` TINYINT UNSIGNED NOT NULL,
@@ -114,7 +116,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_reviews` (
   INDEX `fk_task_reviews_users1_idx` (`user_id` ASC),
   INDEX `fk_task_reviews_tasks1_idx` (`task_id` ASC),
   UNIQUE INDEX `uidx_review` (`task_id` ASC, `user_id` ASC),
-  PRIMARY KEY (`user_id`, `task_id`),
+  PRIMARY KEY (`id`),
   CONSTRAINT `fk_task_reviews_users1`
     FOREIGN KEY (`user_id`)
     REFERENCES `taskforce`.`users` (`id`)
@@ -215,6 +217,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`chat_messages` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`user_qualifications` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` INT UNSIGNED NOT NULL,
   `category_id` INT UNSIGNED NOT NULL,
   `created_at` DATETIME NOT NULL,
@@ -222,7 +225,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`user_qualifications` (
   INDEX `fk_qualifications_users1_idx` (`user_id` ASC),
   INDEX `fk_qualifications_task_categories1_idx` (`category_id` ASC),
   UNIQUE INDEX `uidx_qualification` (`user_id` ASC, `category_id` ASC),
-  PRIMARY KEY (`user_id`, `category_id`),
+  PRIMARY KEY (`id`),
   CONSTRAINT `fk_qualifications_users1`
     FOREIGN KEY (`user_id`)
     REFERENCES `taskforce`.`users` (`id`)
@@ -236,6 +239,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`user_qualifications` (
 ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`user_favorites` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` INT UNSIGNED NOT NULL,
   `favourite_id` INT UNSIGNED NOT NULL,
   `created_at` DATETIME NOT NULL,
@@ -243,7 +247,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`user_favorites` (
   INDEX `fk_user_favorites_users1_idx` (`user_id` ASC),
   INDEX `fk_user_favorites_users2_idx` (`favourite_id` ASC),
   UNIQUE INDEX `uidx_favorite` (`user_id` ASC, `favourite_id` ASC),
-  PRIMARY KEY (`user_id`, `favourite_id`),
+  PRIMARY KEY (`id`),
   CONSTRAINT `fk_user_favorites_users1`
     FOREIGN KEY (`user_id`)
     REFERENCES `taskforce`.`users` (`id`)

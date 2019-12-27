@@ -1,0 +1,25 @@
+{
+  "name": "htmlacademy/792223-task-force-1",
+  "description": "study project for HTML Academy (PHP level 2)",
+  "type": "project",
+  "homepage": "https://htmlacademy.ru/intensive/php2",
+  "authors": [
+    {
+      "name": "Maryna Reznikova",
+      "email": "marvlarz@gmail.com",
+      "homepage": "https://github.com/k0ality",
+      "role": "Student"
+    }
+  ],
+  "require": {
+    "vlucas/phpdotenv": "^3.6"
+  },
+  "require-dev": {
+  },
+
+  "autoload": {
+    "psr-4": {
+      "Htmlacademy\\": "app/"
+    }
+  }
+}
