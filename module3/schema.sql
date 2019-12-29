@@ -301,6 +301,6 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`user_attachments` (
 ENGINE = InnoDB;
 
 ### DROP TABLE EXAMPLE ###
-SET FOREIGN_KEY_CHECKS=0;
-DROP TABLE `taskforce`.`tasks`, `taskforce`.`users`;
-SET FOREIGN_KEY_CHECKS=1;
+#SET FOREIGN_KEY_CHECKS=0;
+#DROP TABLE `taskforce`.`tasks`, `taskforce`.`users`;
+#SET FOREIGN_KEY_CHECKS=1;
