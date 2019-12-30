@@ -3,18 +3,21 @@
 namespace frontend\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "user_favorites".
  *
  * @property int $id
  * @property int $user_id
- * @property int $favourite_id
+ * @property int $favorite_id
  * @property string $created_at
  * @property string $updated_at
  *
  * @property User $user
- * @property User $favourite
+ * @property User $favorite
  */
 class UserFavorite extends \yii\db\ActiveRecord
 {
@@ -32,12 +35,12 @@ class UserFavorite extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'favourite_id', 'created_at', 'updated_at'], 'required'],
-            [['user_id', 'favourite_id'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
-            [['user_id', 'favourite_id'], 'unique', 'targetAttribute' => ['user_id', 'favourite_id']],
+            [['user_id', 'favorite_id'], 'required'],
+            [['user_id', 'favorite_id'], 'integer'],
+            [[], 'safe'],
+            [['user_id', 'favorite_id'], 'unique', 'targetAttribute' => ['user_id', 'favorite_id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
-            [['favourite_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['favourite_id' => 'id']],
+            [['favorite_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['favorite_id' => 'id']],
         ];
     }
 
@@ -49,9 +52,24 @@ class UserFavorite extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
-            'favourite_id' => 'Favourite ID',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'favorite_id' => 'Favorite ID',
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                ],
+                'value' => new Expression('NOW()'),
+            ],
         ];
     }
 
@@ -66,8 +84,8 @@ class UserFavorite extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getFavourite()
+    public function getFavorite()
     {
-        return $this->hasOne(User::className(), ['id' => 'favourite_id']);
+        return $this->hasOne(User::className(), ['id' => 'favorite_id']);
     }
 }

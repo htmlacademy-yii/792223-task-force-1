@@ -3,6 +3,9 @@
 namespace frontend\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "user_settings".
@@ -34,9 +37,9 @@ class UserSetting extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'notify_task_updates', 'notify_reviews', 'notify_messages', 'show_contacts', 'show_profile', 'created_at', 'updated_at'], 'required'],
+            [['user_id', 'notify_task_updates', 'notify_reviews', 'notify_messages', 'show_contacts', 'show_profile'], 'required'],
             [['user_id', 'notify_task_updates', 'notify_reviews', 'notify_messages', 'show_contacts', 'show_profile'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
+            [[], 'safe'],
             [['user_id'], 'unique'],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
@@ -54,8 +57,23 @@ class UserSetting extends \yii\db\ActiveRecord
             'notify_messages' => 'Notify Messages',
             'show_contacts' => 'Show Contacts',
             'show_profile' => 'Show Profile',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                ],
+                'value' => new Expression('NOW()'),
+            ],
         ];
     }
 

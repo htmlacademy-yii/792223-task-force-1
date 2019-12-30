@@ -3,6 +3,9 @@
 namespace frontend\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "chat_messages".
@@ -33,9 +36,9 @@ class ChatMessage extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['message', 'chat_id', 'author_id', 'created_at', 'updated_at'], 'required'],
+            [['message', 'chat_id', 'author_id'], 'required'],
             [['chat_id', 'author_id'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
+            [[], 'safe'],
             [['message'], 'string', 'max' => 500],
             [['chat_id'], 'exist', 'skipOnError' => true, 'targetClass' => Chat::className(), 'targetAttribute' => ['chat_id' => 'id']],
             [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['author_id' => 'id']],
@@ -52,8 +55,23 @@ class ChatMessage extends \yii\db\ActiveRecord
             'message' => 'Message',
             'chat_id' => 'Chat ID',
             'author_id' => 'Author ID',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                ],
+                'value' => new Expression('NOW()'),
+            ],
         ];
     }
 

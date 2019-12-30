@@ -3,6 +3,9 @@
 namespace frontend\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "notifications".
@@ -33,9 +36,9 @@ class Notification extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['type', 'user_id', 'message', 'created_at', 'updated_at'], 'required'],
+            [['type', 'user_id', 'message'], 'required'],
             [['user_id'], 'integer'],
-            [['read_at', 'created_at', 'updated_at'], 'safe'],
+            [['read_at'], 'safe'],
             [['type'], 'string', 'max' => 45],
             [['message'], 'string', 'max' => 500],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
@@ -53,8 +56,23 @@ class Notification extends \yii\db\ActiveRecord
             'user_id' => 'User ID',
             'message' => 'Message',
             'read_at' => 'Read At',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                ],
+                'value' => new Expression('NOW()'),
+            ],
         ];
     }
 

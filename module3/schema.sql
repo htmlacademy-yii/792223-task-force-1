@@ -241,12 +241,12 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `taskforce`.`user_favorites` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` INT UNSIGNED NOT NULL,
-  `favourite_id` INT UNSIGNED NOT NULL,
+  `favorite_id` INT UNSIGNED NOT NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   INDEX `fk_user_favorites_users1_idx` (`user_id` ASC),
-  INDEX `fk_user_favorites_users2_idx` (`favourite_id` ASC),
-  UNIQUE INDEX `uidx_favorite` (`user_id` ASC, `favourite_id` ASC),
+  INDEX `fk_user_favorites_users2_idx` (`favorite_id` ASC),
+  UNIQUE INDEX `uidx_favorite` (`user_id` ASC, `favorite_id` ASC),
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_user_favorites_users1`
     FOREIGN KEY (`user_id`)
@@ -254,7 +254,7 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`user_favorites` (
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_user_favorites_users2`
-    FOREIGN KEY (`favourite_id`)
+    FOREIGN KEY (`favorite_id`)
     REFERENCES `taskforce`.`users` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
@@ -262,7 +262,7 @@ ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `taskforce`.`task_attachments` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `tasks_id` INT UNSIGNED NOT NULL,
+  `task_id` INT UNSIGNED NOT NULL,
   `name` VARCHAR(100) NOT NULL,
   `extension` VARCHAR(45) NOT NULL,
   `mime` VARCHAR(45) NOT NULL,
@@ -272,9 +272,9 @@ CREATE TABLE IF NOT EXISTS `taskforce`.`task_attachments` (
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_task_attachments_tasks1_idx` (`tasks_id` ASC),
+  INDEX `fk_task_attachments_tasks1_idx` (`task_id` ASC),
   CONSTRAINT `fk_task_attachments_tasks1`
-    FOREIGN KEY (`tasks_id`)
+    FOREIGN KEY (`task_id`)
     REFERENCES `taskforce`.`tasks` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)

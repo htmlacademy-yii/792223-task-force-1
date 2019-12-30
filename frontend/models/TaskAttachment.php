@@ -3,12 +3,15 @@
 namespace frontend\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "task_attachments".
  *
  * @property int $id
- * @property int $tasks_id
+ * @property int $task_id
  * @property string $name
  * @property string $extension
  * @property string $mime
@@ -18,7 +21,7 @@ use Yii;
  * @property string $created_at
  * @property string $updated_at
  *
- * @property Task $tasks
+ * @property Task $task
  */
 class TaskAttachment extends \yii\db\ActiveRecord
 {
@@ -36,12 +39,12 @@ class TaskAttachment extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['tasks_id', 'name', 'extension', 'mime', 'size', 'path', 'hash', 'created_at', 'updated_at'], 'required'],
-            [['tasks_id', 'size'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
+            [['task_id', 'name', 'extension', 'mime', 'size', 'path', 'hash'], 'required'],
+            [['task_id', 'size'], 'integer'],
+            [[], 'safe'],
             [['name', 'path', 'hash'], 'string', 'max' => 100],
             [['extension', 'mime'], 'string', 'max' => 45],
-            [['tasks_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::className(), 'targetAttribute' => ['tasks_id' => 'id']],
+            [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::className(), 'targetAttribute' => ['task_id' => 'id']],
         ];
     }
 
@@ -52,23 +55,38 @@ class TaskAttachment extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'tasks_id' => 'Tasks ID',
+            'task_id' => 'Task ID',
             'name' => 'Name',
             'extension' => 'Extension',
             'mime' => 'Mime',
             'size' => 'Size',
             'path' => 'Path',
             'hash' => 'Hash',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                ],
+                'value' => new Expression('NOW()'),
+            ],
         ];
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getTasks()
+    public function getTask()
     {
-        return $this->hasOne(Task::className(), ['id' => 'tasks_id']);
+        return $this->hasOne(Task::className(), ['id' => 'task_id']);
     }
 }

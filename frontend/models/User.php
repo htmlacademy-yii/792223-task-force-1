@@ -3,6 +3,9 @@
 namespace frontend\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "users".
@@ -23,21 +26,23 @@ use Yii;
  * @property string $created_at
  * @property string $updated_at
  *
+ * @property Task[] $tasksAsOwner
+ * @property Task[] $tasksAsAgent
  * @property ChatMessage[] $chatMessages
- * @property Chat[] $chats
- * @property Chat[] $chats0
+ * @property Chat[] $chatsAsOwner
+ * @property Chat[] $chatsAsAgent
  * @property Notification[] $notifications
  * @property TaskApplication[] $taskApplications
- * @property Task[] $tasks
+ * @property Task[] $tasksAsApplicant
  * @property TaskReview[] $taskReviews
- * @property Task[] $tasks0
+ * @property Task[] $tasksAsReviewed
  * @property UserAttachment[] $userAttachments
- * @property UserFavorite[] $userFavorites
- * @property UserFavorite[] $userFavorites0
+ * @property UserFavorite[] $favoritesByUser
+ * @property UserFavorite[] $favoritesOfUser
  * @property User[] $favourites
- * @property User[] $users
+ * @property User[] $favorers
  * @property UserQualification[] $userQualifications
- * @property TaskCategory[] $categories
+ * @property TaskCategory[] $qualificationCategories
  * @property UserSetting $userSetting
  * @property Location $location
  */
@@ -57,9 +62,9 @@ class User extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['email', 'password', 'first_name', 'last_name', 'date_of_birth', 'location_id', 'last_active_at', 'created_at', 'updated_at'], 'required'],
+            [['email', 'password', 'first_name', 'last_name', 'date_of_birth', 'location_id', 'last_active_at'], 'required'],
             [['bio'], 'string'],
-            [['date_of_birth', 'last_active_at', 'created_at', 'updated_at'], 'safe'],
+            [['date_of_birth', 'last_active_at'], 'safe'],
             [['location_id', 'profile_views'], 'integer'],
             [['email'], 'string', 'max' => 320],
             [['password', 'first_name', 'last_name'], 'string', 'max' => 100],
@@ -88,9 +93,40 @@ class User extends \yii\db\ActiveRecord
             'location_id' => 'Location ID',
             'profile_views' => 'Profile Views',
             'last_active_at' => 'Last Active At',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                ],
+                'value' => new Expression('NOW()'),
+            ],
+        ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTasksAsOwner()
+    {
+        return $this->hasMany(Task::className(), ['owner_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTasksAsAgent()
+    {
+        return $this->hasMany(Task::className(), ['agent_id' => 'id']);
     }
 
     /**
@@ -104,7 +140,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getChats()
+    public function getChatsAsOwner()
     {
         return $this->hasMany(Chat::className(), ['task_owner_id' => 'id']);
     }
@@ -112,7 +148,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getChats0()
+    public function getChatsAsAgent()
     {
         return $this->hasMany(Chat::className(), ['task_agent_id' => 'id']);
     }
@@ -135,8 +171,9 @@ class User extends \yii\db\ActiveRecord
 
     /**
      * @return \yii\db\ActiveQuery
+     * @throws \yii\base\InvalidConfigException
      */
-    public function getTasks()
+    public function getTasksAsApplicant()
     {
         return $this->hasMany(Task::className(), ['id' => 'task_id'])->viaTable('task_applications', ['user_id' => 'id']);
     }
@@ -151,8 +188,9 @@ class User extends \yii\db\ActiveRecord
 
     /**
      * @return \yii\db\ActiveQuery
+     * @throws \yii\base\InvalidConfigException
      */
-    public function getTasks0()
+    public function getTasksAsReviewed()
     {
         return $this->hasMany(Task::className(), ['id' => 'task_id'])->viaTable('task_reviews', ['user_id' => 'id']);
     }
@@ -166,33 +204,43 @@ class User extends \yii\db\ActiveRecord
     }
 
     /**
+     * Favs of others by {User}
+     *
      * @return \yii\db\ActiveQuery
      */
-    public function getUserFavorites()
+    public function getFavoritesByUser()
     {
         return $this->hasMany(UserFavorite::className(), ['user_id' => 'id']);
     }
 
     /**
+     * Favs by others of {User}
+     *
      * @return \yii\db\ActiveQuery
      */
-    public function getUserFavorites0()
+    public function getFavourersOfUser()
     {
         return $this->hasMany(UserFavorite::className(), ['favourite_id' => 'id']);
     }
 
     /**
+     * Users who were added to Favorites by {User}
+     *
      * @return \yii\db\ActiveQuery
+     * @throws \yii\base\InvalidConfigException
      */
-    public function getFavourites()
+    public function getFavorites()
     {
         return $this->hasMany(User::className(), ['id' => 'favourite_id'])->viaTable('user_favorites', ['user_id' => 'id']);
     }
 
     /**
+     * Users who added {User} to their Favorites
+     *
      * @return \yii\db\ActiveQuery
+     * @throws \yii\base\InvalidConfigException
      */
-    public function getUsers()
+    public function getFavorers()
     {
         return $this->hasMany(User::className(), ['id' => 'user_id'])->viaTable('user_favorites', ['favourite_id' => 'id']);
     }
@@ -207,8 +255,9 @@ class User extends \yii\db\ActiveRecord
 
     /**
      * @return \yii\db\ActiveQuery
+     * @throws \yii\base\InvalidConfigException
      */
-    public function getCategories()
+    public function getQualificationCategories()
     {
         return $this->hasMany(TaskCategory::className(), ['id' => 'category_id'])->viaTable('user_qualifications', ['user_id' => 'id']);
     }

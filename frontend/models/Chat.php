@@ -3,6 +3,9 @@
 namespace frontend\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "chats".
@@ -35,9 +38,9 @@ class Chat extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['task_id', 'task_owner_id', 'task_agent_id', 'created_at', 'updated_at'], 'required'],
+            [['task_id', 'task_owner_id', 'task_agent_id'], 'required'],
             [['task_id', 'task_owner_id', 'task_agent_id'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
+            [[], 'safe'],
             [['task_id', 'task_owner_id', 'task_agent_id'], 'unique', 'targetAttribute' => ['task_id', 'task_owner_id', 'task_agent_id']],
             [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::className(), 'targetAttribute' => ['task_id' => 'id']],
             [['task_owner_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['task_owner_id' => 'id']],
@@ -55,8 +58,23 @@ class Chat extends \yii\db\ActiveRecord
             'task_id' => 'Task ID',
             'task_owner_id' => 'Task Owner ID',
             'task_agent_id' => 'Task Agent ID',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                ],
+                'value' => new Expression('NOW()'),
+            ],
         ];
     }
 

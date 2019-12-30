@@ -3,6 +3,9 @@
 namespace frontend\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "tasks".
@@ -20,12 +23,14 @@ use Yii;
  * @property string $created_at
  * @property string $updated_at
  *
+ * @property User[] $owner
+ * @property User[] $agent
  * @property Chat[] $chats
  * @property TaskApplication[] $taskApplications
- * @property User[] $users
+ * @property User[] $applicants
  * @property TaskAttachment[] $taskAttachments
  * @property TaskReview[] $taskReviews
- * @property User[] $users0
+ * @property User[] $reviewedUsers
  * @property TaskCategory $category
  * @property Location $location
  */
@@ -45,10 +50,10 @@ class Task extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['owner_id', 'status', 'name', 'description', 'price', 'expired_at', 'category_id', 'created_at', 'updated_at'], 'required'],
+            [['owner_id', 'status', 'name', 'description', 'price', 'expired_at', 'category_id'], 'required'],
             [['owner_id', 'agent_id', 'price', 'category_id', 'location_id'], 'integer'],
             [['status', 'description'], 'string'],
-            [['expired_at', 'created_at', 'updated_at'], 'safe'],
+            [['expired_at'], 'safe'],
             [['name'], 'string', 'max' => 100],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => TaskCategory::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['location_id'], 'exist', 'skipOnError' => true, 'targetClass' => Location::className(), 'targetAttribute' => ['location_id' => 'id']],
@@ -71,9 +76,40 @@ class Task extends \yii\db\ActiveRecord
             'expired_at' => 'Expired At',
             'category_id' => 'Category ID',
             'location_id' => 'Location ID',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
         ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                ],
+                'value' => new Expression('NOW()'),
+            ],
+        ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOwner()
+    {
+        return $this->hasOne(User::className(), ['id' => 'owner_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAgent()
+    {
+        //TODO: Task can have many Agents, if previous agent declined the job?
+        //      check Chats(), TaskReviews()
+        //      create new record or update existing?
+        return $this->hasOne(User::className(), ['id' => 'agent_id']);
     }
 
     /**
@@ -94,8 +130,9 @@ class Task extends \yii\db\ActiveRecord
 
     /**
      * @return \yii\db\ActiveQuery
+     * @throws \yii\base\InvalidConfigException
      */
-    public function getUsers()
+    public function getApplicants()
     {
         return $this->hasMany(User::className(), ['id' => 'user_id'])->viaTable('task_applications', ['task_id' => 'id']);
     }
@@ -118,8 +155,9 @@ class Task extends \yii\db\ActiveRecord
 
     /**
      * @return \yii\db\ActiveQuery
+     * @throws \yii\base\InvalidConfigException
      */
-    public function getUsers0()
+    public function getReviewedUsers()
     {
         return $this->hasMany(User::className(), ['id' => 'user_id'])->viaTable('task_reviews', ['task_id' => 'id']);
     }
