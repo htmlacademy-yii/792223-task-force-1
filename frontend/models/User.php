@@ -34,13 +34,11 @@ use yii\db\Expression;
  * @property Notification[] $notifications
  * @property TaskApplication[] $taskApplications
  * @property Task[] $tasksAsApplicant
- * @property TaskReview[] $taskReviews
- * @property Task[] $tasksAsReviewed
  * @property UserAttachment[] $userAttachments
  * @property UserFavorite[] $favoritesByUser
  * @property UserFavorite[] $favoritesOfUser
- * @property User[] $favourites
- * @property User[] $favorers
+ * @property User[] $favoriteUsers
+ * @property User[] $favorerUsers
  * @property UserQualification[] $userQualifications
  * @property TaskCategory[] $qualificationCategories
  * @property UserSetting $userSetting
@@ -181,23 +179,6 @@ class User extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getTaskReviews()
-    {
-        return $this->hasMany(TaskReview::className(), ['user_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function getTasksAsReviewed()
-    {
-        return $this->hasMany(Task::className(), ['id' => 'task_id'])->viaTable('task_reviews', ['user_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
     public function getUserAttachments()
     {
         return $this->hasMany(UserAttachment::className(), ['author_id' => 'id']);
@@ -229,7 +210,7 @@ class User extends \yii\db\ActiveRecord
      * @return \yii\db\ActiveQuery
      * @throws \yii\base\InvalidConfigException
      */
-    public function getFavorites()
+    public function getFavoriteUsers()
     {
         return $this->hasMany(User::className(), ['id' => 'favourite_id'])->viaTable('user_favorites', ['user_id' => 'id']);
     }
@@ -240,7 +221,7 @@ class User extends \yii\db\ActiveRecord
      * @return \yii\db\ActiveQuery
      * @throws \yii\base\InvalidConfigException
      */
-    public function getFavorers()
+    public function getFavorerUsers()
     {
         return $this->hasMany(User::className(), ['id' => 'user_id'])->viaTable('user_favorites', ['favourite_id' => 'id']);
     }

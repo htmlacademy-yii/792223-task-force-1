@@ -12,15 +12,11 @@ use yii\db\Expression;
  *
  * @property int $id
  * @property int $task_id
- * @property int $task_owner_id
- * @property int $task_agent_id
  * @property string $created_at
  * @property string $updated_at
  *
  * @property ChatMessage[] $chatMessages
  * @property Task $task
- * @property User $taskOwner
- * @property User $taskAgent
  */
 class Chat extends \yii\db\ActiveRecord
 {
@@ -38,13 +34,11 @@ class Chat extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['task_id', 'task_owner_id', 'task_agent_id'], 'required'],
-            [['task_id', 'task_owner_id', 'task_agent_id'], 'integer'],
+            [['task_id'], 'required'],
+            [['task_id'], 'integer'],
             [[], 'safe'],
-            [['task_id', 'task_owner_id', 'task_agent_id'], 'unique', 'targetAttribute' => ['task_id', 'task_owner_id', 'task_agent_id']],
+            [['task_id'], 'unique', 'targetAttribute' => ['task_id']],
             [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::className(), 'targetAttribute' => ['task_id' => 'id']],
-            [['task_owner_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['task_owner_id' => 'id']],
-            [['task_agent_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['task_agent_id' => 'id']],
         ];
     }
 
@@ -56,8 +50,6 @@ class Chat extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'task_id' => 'Task ID',
-            'task_owner_id' => 'Task Owner ID',
-            'task_agent_id' => 'Task Agent ID',
         ];
     }
 
@@ -92,21 +84,5 @@ class Chat extends \yii\db\ActiveRecord
     public function getTask()
     {
         return $this->hasOne(Task::className(), ['id' => 'task_id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTaskOwner()
-    {
-        return $this->hasOne(User::className(), ['id' => 'task_owner_id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTaskAgent()
-    {
-        return $this->hasOne(User::className(), ['id' => 'task_agent_id']);
     }
 }

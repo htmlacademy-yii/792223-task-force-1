@@ -12,7 +12,6 @@ use yii\db\Expression;
  *
  * @property int $id
  * @property int $task_id
- * @property int $user_id
  * @property int $is_completed
  * @property int|null $rating
  * @property string|null $comment
@@ -20,7 +19,6 @@ use yii\db\Expression;
  * @property string $updated_at
  *
  * @property Task $task
- * @property User $reviewedUser
  */
 class TaskReview extends \yii\db\ActiveRecord
 {
@@ -38,13 +36,12 @@ class TaskReview extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['task_id', 'user_id', 'is_completed'], 'required'],
-            [['task_id', 'user_id', 'is_completed', 'rating'], 'integer'],
+            [['task_id', 'is_completed'], 'required'],
+            [['task_id', 'is_completed', 'rating'], 'integer'],
             [[], 'safe'],
             [['comment'], 'string', 'max' => 500],
             [['task_id', 'user_id'], 'unique', 'targetAttribute' => ['task_id', 'user_id']],
             [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::className(), 'targetAttribute' => ['task_id' => 'id']],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
 
@@ -56,7 +53,6 @@ class TaskReview extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'task_id' => 'Task ID',
-            'user_id' => 'User ID',
             'is_completed' => 'Is Completed',
             'rating' => 'Rating',
             'comment' => 'Comment',
@@ -86,13 +82,5 @@ class TaskReview extends \yii\db\ActiveRecord
     public function getTask()
     {
         return $this->hasOne(Task::className(), ['id' => 'task_id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getReviewedUser()
-    {
-        return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 }

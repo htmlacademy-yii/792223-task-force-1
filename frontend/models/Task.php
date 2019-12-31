@@ -25,12 +25,11 @@ use yii\db\Expression;
  *
  * @property User[] $owner
  * @property User[] $agent
- * @property Chat[] $chats
+ * @property Chat[] $chat
  * @property TaskApplication[] $taskApplications
  * @property User[] $applicants
  * @property TaskAttachment[] $taskAttachments
- * @property TaskReview[] $taskReviews
- * @property User[] $reviewedUsers
+ * @property TaskReview[] $taskReview
  * @property TaskCategory $category
  * @property Location $location
  */
@@ -57,6 +56,8 @@ class Task extends \yii\db\ActiveRecord
             [['name'], 'string', 'max' => 100],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => TaskCategory::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['location_id'], 'exist', 'skipOnError' => true, 'targetClass' => Location::className(), 'targetAttribute' => ['location_id' => 'id']],
+            [['owner_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['owner_id' => 'id']],
+            [['agent_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['agent_id' => 'id']],
         ];
     }
 
@@ -106,18 +107,15 @@ class Task extends \yii\db\ActiveRecord
      */
     public function getAgent()
     {
-        //TODO: Task can have many Agents, if previous agent declined the job?
-        //      check Chats(), TaskReviews()
-        //      create new record or update existing?
         return $this->hasOne(User::className(), ['id' => 'agent_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getChats()
+    public function getChat()
     {
-        return $this->hasMany(Chat::className(), ['task_id' => 'id']);
+        return $this->hasOne(Chat::className(), ['task_id' => 'id']);
     }
 
     /**
@@ -142,24 +140,15 @@ class Task extends \yii\db\ActiveRecord
      */
     public function getTaskAttachments()
     {
-        return $this->hasMany(TaskAttachment::className(), ['tasks_id' => 'id']);
+        return $this->hasMany(TaskAttachment::className(), ['task_id' => 'id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getTaskReviews()
+    public function getTaskReview()
     {
-        return $this->hasMany(TaskReview::className(), ['task_id' => 'id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function getReviewedUsers()
-    {
-        return $this->hasMany(User::className(), ['id' => 'user_id'])->viaTable('task_reviews', ['task_id' => 'id']);
+        return $this->hasOne(TaskReview::className(), ['task_id' => 'id']);
     }
 
     /**
