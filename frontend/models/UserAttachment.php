@@ -2,10 +2,12 @@
 
 namespace frontend\models;
 
+use Carbon\Carbon;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii2mod\behaviors\CarbonBehavior;
 
 /**
  * This is the model class for table "user_attachments".
@@ -44,7 +46,13 @@ class UserAttachment extends \yii\db\ActiveRecord
             [[], 'safe'],
             [['name', 'path', 'hash'], 'string', 'max' => 100],
             [['extension', 'mime'], 'string', 'max' => 45],
-            [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['author_id' => 'id']],
+            [
+                ['author_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => User::className(),
+                'targetAttribute' => ['author_id' => 'id'],
+            ],
         ];
     }
 
@@ -54,14 +62,14 @@ class UserAttachment extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
+            'id'        => 'ID',
             'author_id' => 'Author ID',
-            'name' => 'Name',
+            'name'      => 'Name',
             'extension' => 'Extension',
-            'mime' => 'Mime',
-            'size' => 'Size',
-            'path' => 'Path',
-            'hash' => 'Hash',
+            'mime'      => 'Mime',
+            'size'      => 'Size',
+            'path'      => 'Path',
+            'hash'      => 'Hash',
         ];
     }
 
@@ -72,12 +80,16 @@ class UserAttachment extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class'      => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
-                'value' => new Expression('NOW()'),
+                'value'      => Carbon::now('UTC')->toDateTimeString(),
+            ],
+            [
+                'class'      => CarbonBehavior::className(),
+                'attributes' => ['created_at', 'updated_at'],
             ],
         ];
     }

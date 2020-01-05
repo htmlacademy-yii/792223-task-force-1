@@ -2,10 +2,12 @@
 
 namespace frontend\models;
 
+use Carbon\Carbon;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii2mod\behaviors\CarbonBehavior;
 
 /**
  * This is the model class for table "user_settings".
@@ -37,11 +39,37 @@ class UserSetting extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'notify_task_updates', 'notify_reviews', 'notify_messages', 'show_contacts', 'show_profile'], 'required'],
-            [['user_id', 'notify_task_updates', 'notify_reviews', 'notify_messages', 'show_contacts', 'show_profile'], 'integer'],
+            [
+                [
+                    'user_id',
+                    'notify_task_updates',
+                    'notify_reviews',
+                    'notify_messages',
+                    'show_contacts',
+                    'show_profile',
+                ],
+                'required',
+            ],
+            [
+                [
+                    'user_id',
+                    'notify_task_updates',
+                    'notify_reviews',
+                    'notify_messages',
+                    'show_contacts',
+                    'show_profile',
+                ],
+                'integer',
+            ],
             [[], 'safe'],
             [['user_id'], 'unique'],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
+            [
+                ['user_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => User::className(),
+                'targetAttribute' => ['user_id' => 'id'],
+            ],
         ];
     }
 
@@ -51,12 +79,12 @@ class UserSetting extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'user_id' => 'User ID',
+            'user_id'             => 'User ID',
             'notify_task_updates' => 'Notify Task Updates',
-            'notify_reviews' => 'Notify Reviews',
-            'notify_messages' => 'Notify Messages',
-            'show_contacts' => 'Show Contacts',
-            'show_profile' => 'Show Profile',
+            'notify_reviews'      => 'Notify Reviews',
+            'notify_messages'     => 'Notify Messages',
+            'show_contacts'       => 'Show Contacts',
+            'show_profile'        => 'Show Profile',
         ];
     }
 
@@ -67,12 +95,16 @@ class UserSetting extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class'      => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
-                'value' => new Expression('NOW()'),
+                'value'      => Carbon::now('UTC')->toDateTimeString(),
+            ],
+            [
+                'class'      => CarbonBehavior::className(),
+                'attributes' => ['created_at', 'updated_at'],
             ],
         ];
     }

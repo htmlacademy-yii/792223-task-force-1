@@ -2,10 +2,12 @@
 
 namespace frontend\models;
 
+use Carbon\Carbon;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii2mod\behaviors\CarbonBehavior;
 
 /**
  * This is the model class for table "user_qualifications".
@@ -39,8 +41,20 @@ class UserQualification extends \yii\db\ActiveRecord
             [['user_id', 'category_id'], 'integer'],
             [[], 'safe'],
             [['user_id', 'category_id'], 'unique', 'targetAttribute' => ['user_id', 'category_id']],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => TaskCategory::className(), 'targetAttribute' => ['category_id' => 'id']],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
+            [
+                ['category_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => TaskCategory::className(),
+                'targetAttribute' => ['category_id' => 'id'],
+            ],
+            [
+                ['user_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => User::className(),
+                'targetAttribute' => ['user_id' => 'id'],
+            ],
         ];
     }
 
@@ -50,8 +64,8 @@ class UserQualification extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'user_id' => 'User ID',
+            'id'          => 'ID',
+            'user_id'     => 'User ID',
             'category_id' => 'Category ID',
         ];
     }
@@ -63,12 +77,16 @@ class UserQualification extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class'      => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
-                'value' => new Expression('NOW()'),
+                'value'      => Carbon::now('UTC')->toDateTimeString(),
+            ],
+            [
+                'class'      => CarbonBehavior::className(),
+                'attributes' => ['created_at', 'updated_at'],
             ],
         ];
     }

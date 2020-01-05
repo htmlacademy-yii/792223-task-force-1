@@ -2,10 +2,12 @@
 
 namespace frontend\models;
 
+use Carbon\Carbon;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii2mod\behaviors\CarbonBehavior;
 
 /**
  * This is the model class for table "tasks".
@@ -54,10 +56,34 @@ class Task extends \yii\db\ActiveRecord
             [['status', 'description'], 'string'],
             [['expired_at'], 'safe'],
             [['name'], 'string', 'max' => 100],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => TaskCategory::className(), 'targetAttribute' => ['category_id' => 'id']],
-            [['location_id'], 'exist', 'skipOnError' => true, 'targetClass' => Location::className(), 'targetAttribute' => ['location_id' => 'id']],
-            [['owner_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['owner_id' => 'id']],
-            [['agent_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['agent_id' => 'id']],
+            [
+                ['category_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => TaskCategory::className(),
+                'targetAttribute' => ['category_id' => 'id'],
+            ],
+            [
+                ['location_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => Location::className(),
+                'targetAttribute' => ['location_id' => 'id'],
+            ],
+            [
+                ['owner_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => User::className(),
+                'targetAttribute' => ['owner_id' => 'id'],
+            ],
+            [
+                ['agent_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => User::className(),
+                'targetAttribute' => ['agent_id' => 'id'],
+            ],
         ];
     }
 
@@ -67,14 +93,14 @@ class Task extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'owner_id' => 'Owner ID',
-            'status' => 'Status',
-            'agent_id' => 'Agent ID',
-            'name' => 'Name',
+            'id'          => 'ID',
+            'owner_id'    => 'Owner ID',
+            'status'      => 'Status',
+            'agent_id'    => 'Agent ID',
+            'name'        => 'Name',
             'description' => 'Description',
-            'price' => 'Price',
-            'expired_at' => 'Expired At',
+            'price'       => 'Price',
+            'expired_at'  => 'Expired At',
             'category_id' => 'Category ID',
             'location_id' => 'Location ID',
         ];
@@ -84,12 +110,16 @@ class Task extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class'      => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
-                'value' => new Expression('NOW()'),
+                'value'      => Carbon::now('UTC')->toDateTimeString(),
+            ],
+            [
+                'class'      => CarbonBehavior::className(),
+                'attributes' => ['created_at', 'updated_at', 'expired_at'],
             ],
         ];
     }
@@ -132,7 +162,8 @@ class Task extends \yii\db\ActiveRecord
      */
     public function getApplicants()
     {
-        return $this->hasMany(User::className(), ['id' => 'user_id'])->viaTable('task_applications', ['task_id' => 'id']);
+        return $this->hasMany(User::className(), ['id' => 'user_id'])
+                    ->viaTable('task_applications', ['task_id' => 'id']);
     }
 
     /**
