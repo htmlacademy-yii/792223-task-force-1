@@ -6,14 +6,13 @@ use Carbon\Carbon;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
-use yii\db\Expression;
 use yii2mod\behaviors\CarbonBehavior;
 
 /**
  * This is the model class for table "user_attachments".
  *
  * @property int $id
- * @property int $author_id
+ * @property int $user_id
  * @property string $name
  * @property string $extension
  * @property string $mime
@@ -41,17 +40,17 @@ class UserAttachment extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['author_id', 'name', 'extension', 'mime', 'size', 'path', 'hash'], 'required'],
-            [['author_id', 'size'], 'integer'],
+            [['user_id', 'name', 'extension', 'mime', 'size', 'path', 'hash'], 'required'],
+            [['user_id', 'size'], 'integer'],
             [[], 'safe'],
             [['name', 'path', 'hash'], 'string', 'max' => 100],
             [['extension', 'mime'], 'string', 'max' => 45],
             [
-                ['author_id'],
+                ['user_id'],
                 'exist',
                 'skipOnError'     => true,
                 'targetClass'     => User::className(),
-                'targetAttribute' => ['author_id' => 'id'],
+                'targetAttribute' => ['user_id' => 'id'],
             ],
         ];
     }
@@ -63,7 +62,7 @@ class UserAttachment extends \yii\db\ActiveRecord
     {
         return [
             'id'        => 'ID',
-            'author_id' => 'Author ID',
+            'user_id'   => 'User ID',
             'name'      => 'Name',
             'extension' => 'Extension',
             'mime'      => 'Mime',
@@ -99,6 +98,6 @@ class UserAttachment extends \yii\db\ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'author_id']);
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 }

@@ -197,7 +197,7 @@ class User extends \yii\db\ActiveRecord
      */
     public function getUserAttachments()
     {
-        return $this->hasMany(UserAttachment::className(), ['author_id' => 'id']);
+        return $this->hasMany(UserAttachment::className(), ['user_id' => 'id']);
     }
 
     /**
