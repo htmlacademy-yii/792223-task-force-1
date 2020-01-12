@@ -16,7 +16,7 @@ $this->title = 'TaskForce | New Tasks';
             <?php foreach ($tasks as $task): ?>
                 <div class="new-task__card">
                     <div class="new-task__title">
-                        <a href="#" class="link-regular"><h2><?= Html::encode($task->name); ?></h2></a>
+                        <a href="#" class="link-regular"><h2><?= Html::encode(ucfirst(strtolower($task->name))); ?></h2></a>
                         <a class="new-task__type link-regular" href="#">
                             <p><?= Html::encode($task->category->name); ?></p></a>
                     </div>
@@ -24,7 +24,7 @@ $this->title = 'TaskForce | New Tasks';
                     <p class="new-task_description"><?= Html::encode($task->description); ?></p>
                     <b class="new-task__price new-task__price--<?= Html::encode($task->category->slug); ?>"><?= Html::encode($task->price); ?>
                         <b> ₽</b></b>
-                    <p class="new-task__place"><?= Html::encode($task->location->city); ?></p>
+                    <p class="new-task__place"><?= Html::encode($task->location->city ?? 'Удалённо'); ?></p>
                     <span class="new-task__time"><?= Carbon::parse($task->created_at)->locale('ru')
                                                            ->diffForHumans(); ?></span>
                 </div>
