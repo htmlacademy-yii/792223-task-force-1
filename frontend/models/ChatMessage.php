@@ -2,10 +2,12 @@
 
 namespace frontend\models;
 
+use Carbon\Carbon;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii2mod\behaviors\CarbonBehavior;
 
 /**
  * This is the model class for table "chat_messages".
@@ -40,8 +42,20 @@ class ChatMessage extends \yii\db\ActiveRecord
             [['chat_id', 'author_id'], 'integer'],
             [[], 'safe'],
             [['message'], 'string', 'max' => 500],
-            [['chat_id'], 'exist', 'skipOnError' => true, 'targetClass' => Chat::className(), 'targetAttribute' => ['chat_id' => 'id']],
-            [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['author_id' => 'id']],
+            [
+                ['chat_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => Chat::className(),
+                'targetAttribute' => ['chat_id' => 'id'],
+            ],
+            [
+                ['author_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => User::className(),
+                'targetAttribute' => ['author_id' => 'id'],
+            ],
         ];
     }
 
@@ -51,9 +65,9 @@ class ChatMessage extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'message' => 'Message',
-            'chat_id' => 'Chat ID',
+            'id'        => 'ID',
+            'message'   => 'Message',
+            'chat_id'   => 'Chat ID',
             'author_id' => 'Author ID',
         ];
     }
@@ -65,12 +79,16 @@ class ChatMessage extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class'      => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
-                'value' => new Expression('NOW()'),
+                'value'      => Carbon::now('UTC')->toDateTimeString(),
+            ],
+            [
+                'class'      => CarbonBehavior::className(),
+                'attributes' => ['created_at', 'updated_at'],
             ],
         ];
     }

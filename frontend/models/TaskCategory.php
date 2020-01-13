@@ -2,10 +2,12 @@
 
 namespace frontend\models;
 
+use Carbon\Carbon;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii2mod\behaviors\CarbonBehavior;
 
 /**
  * This is the model class for table "task_categories".
@@ -49,7 +51,7 @@ class TaskCategory extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
+            'id'   => 'ID',
             'name' => 'Name',
             'slug' => 'Slug',
         ];
@@ -62,12 +64,16 @@ class TaskCategory extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class'      => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
-                'value' => new Expression('NOW()'),
+                'value'      => Carbon::now('UTC')->toDateTimeString(),
+            ],
+            [
+                'class'      => CarbonBehavior::className(),
+                'attributes' => ['created_at', 'updated_at'],
             ],
         ];
     }
@@ -94,6 +100,7 @@ class TaskCategory extends \yii\db\ActiveRecord
      */
     public function getQualifiedUsers()
     {
-        return $this->hasMany(User::className(), ['id' => 'user_id'])->viaTable('user_qualifications', ['category_id' => 'id']);
+        return $this->hasMany(User::className(), ['id' => 'user_id'])
+                    ->viaTable('user_qualifications', ['category_id' => 'id']);
     }
 }

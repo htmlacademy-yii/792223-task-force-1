@@ -2,10 +2,12 @@
 
 namespace frontend\models;
 
+use Carbon\Carbon;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii2mod\behaviors\CarbonBehavior;
 
 /**
  * This is the model class for table "chats".
@@ -38,7 +40,13 @@ class Chat extends \yii\db\ActiveRecord
             [['task_id'], 'integer'],
             [[], 'safe'],
             [['task_id'], 'unique', 'targetAttribute' => ['task_id']],
-            [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::className(), 'targetAttribute' => ['task_id' => 'id']],
+            [
+                ['task_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => Task::className(),
+                'targetAttribute' => ['task_id' => 'id'],
+            ],
         ];
     }
 
@@ -48,7 +56,7 @@ class Chat extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
+            'id'      => 'ID',
             'task_id' => 'Task ID',
         ];
     }
@@ -60,12 +68,16 @@ class Chat extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class'      => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
-                'value' => new Expression('NOW()'),
+                'value'      => Carbon::now('UTC')->toDateTimeString(),
+            ],
+            [
+                'class'      => CarbonBehavior::className(),
+                'attributes' => ['created_at', 'updated_at']
             ],
         ];
     }

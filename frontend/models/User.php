@@ -2,10 +2,12 @@
 
 namespace frontend\models;
 
+use Carbon\Carbon;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii2mod\behaviors\CarbonBehavior;
 
 /**
  * This is the model class for table "users".
@@ -60,7 +62,10 @@ class User extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['email', 'password', 'first_name', 'last_name', 'date_of_birth', 'location_id', 'last_active_at'], 'required'],
+            [
+                ['email', 'password', 'first_name', 'last_name', 'date_of_birth', 'location_id', 'last_active_at'],
+                'required',
+            ],
             [['bio'], 'string'],
             [['date_of_birth', 'last_active_at'], 'safe'],
             [['location_id', 'profile_views'], 'integer'],
@@ -68,7 +73,13 @@ class User extends \yii\db\ActiveRecord
             [['password', 'first_name', 'last_name'], 'string', 'max' => 100],
             [['phone', 'skype', 'other_messenger'], 'string', 'max' => 45],
             [['email'], 'unique'],
-            [['location_id'], 'exist', 'skipOnError' => true, 'targetClass' => Location::className(), 'targetAttribute' => ['location_id' => 'id']],
+            [
+                ['location_id'],
+                'exist',
+                'skipOnError'     => true,
+                'targetClass'     => Location::className(),
+                'targetAttribute' => ['location_id' => 'id'],
+            ],
         ];
     }
 
@@ -78,19 +89,19 @@ class User extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'email' => 'Email',
-            'password' => 'Password',
-            'first_name' => 'First Name',
-            'last_name' => 'Last Name',
-            'bio' => 'Bio',
-            'date_of_birth' => 'Date Of Birth',
-            'phone' => 'Phone',
-            'skype' => 'Skype',
+            'id'              => 'ID',
+            'email'           => 'Email',
+            'password'        => 'Password',
+            'first_name'      => 'First Name',
+            'last_name'       => 'Last Name',
+            'bio'             => 'Bio',
+            'date_of_birth'   => 'Date Of Birth',
+            'phone'           => 'Phone',
+            'skype'           => 'Skype',
             'other_messenger' => 'Other Messenger',
-            'location_id' => 'Location ID',
-            'profile_views' => 'Profile Views',
-            'last_active_at' => 'Last Active At',
+            'location_id'     => 'Location ID',
+            'profile_views'   => 'Profile Views',
+            'last_active_at'  => 'Last Active At',
         ];
     }
 
@@ -101,12 +112,16 @@ class User extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class'      => TimestampBehavior::className(),
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at']
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
-                'value' => new Expression('NOW()'),
+                'value'      => Carbon::now('UTC')->toDateTimeString(),
+            ],
+            [
+                'class'      => CarbonBehavior::className(),
+                'attributes' => ['created_at', 'updated_at', 'date_of_birth', 'last_active_at'],
             ],
         ];
     }
@@ -173,7 +188,8 @@ class User extends \yii\db\ActiveRecord
      */
     public function getTasksAsApplicant()
     {
-        return $this->hasMany(Task::className(), ['id' => 'task_id'])->viaTable('task_applications', ['user_id' => 'id']);
+        return $this->hasMany(Task::className(), ['id' => 'task_id'])
+                    ->viaTable('task_applications', ['user_id' => 'id']);
     }
 
     /**
@@ -181,7 +197,7 @@ class User extends \yii\db\ActiveRecord
      */
     public function getUserAttachments()
     {
-        return $this->hasMany(UserAttachment::className(), ['author_id' => 'id']);
+        return $this->hasMany(UserAttachment::className(), ['user_id' => 'id']);
     }
 
     /**
@@ -212,7 +228,8 @@ class User extends \yii\db\ActiveRecord
      */
     public function getFavoriteUsers()
     {
-        return $this->hasMany(User::className(), ['id' => 'favourite_id'])->viaTable('user_favorites', ['user_id' => 'id']);
+        return $this->hasMany(User::className(), ['id' => 'favourite_id'])
+                    ->viaTable('user_favorites', ['user_id' => 'id']);
     }
 
     /**
@@ -223,7 +240,8 @@ class User extends \yii\db\ActiveRecord
      */
     public function getFavorerUsers()
     {
-        return $this->hasMany(User::className(), ['id' => 'user_id'])->viaTable('user_favorites', ['favourite_id' => 'id']);
+        return $this->hasMany(User::className(), ['id' => 'user_id'])
+                    ->viaTable('user_favorites', ['favourite_id' => 'id']);
     }
 
     /**
@@ -240,7 +258,8 @@ class User extends \yii\db\ActiveRecord
      */
     public function getQualificationCategories()
     {
-        return $this->hasMany(TaskCategory::className(), ['id' => 'category_id'])->viaTable('user_qualifications', ['user_id' => 'id']);
+        return $this->hasMany(TaskCategory::className(), ['id' => 'category_id'])
+                    ->viaTable('user_qualifications', ['user_id' => 'id']);
     }
 
     /**
